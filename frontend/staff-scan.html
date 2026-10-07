@@ -303,9 +303,8 @@ async function verifyOrder(token) {
     try {
 
         const response = await fetch(
-
-            "http://localhost:5000/api/orders/qr/" +
-            encodeURIComponent(token)
+            "https://smart-canteen-1-qysl.onrender.com/api/orders/qr/" +
+encodeURIComponent(token)
 
         );
 
@@ -749,7 +748,7 @@ async function confirmCollection() {
 
         const response = await fetch(
 
-            `http://localhost:5000/api/orders/${orderId}/collect`,
+            `https://smart-canteen-1-qysl.onrender.com/api/orders/${orderId}/collect`,
 
             {
 

@@ -91,7 +91,7 @@
             try {
 
                 const response = await fetch(
-                    `http://localhost:5000/api/orders/qr/${qrToken}`
+                  `https://smart-canteen-1-qysl.onrender.com/api/orders/qr/${qrToken}`
                 );
 
 
@@ -193,7 +193,7 @@
             try {
 
                 const response = await fetch(
-                    `http://localhost:5000/api/orders/${orderId}/status`,
+                 `http://localhost:5000/api/orders/${orderId}/status`,
                     {
                         method: "PUT",
 

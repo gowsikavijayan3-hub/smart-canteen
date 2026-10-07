@@ -58,7 +58,7 @@
             try {
 
                 const response = await fetch(
-                    "http://localhost:5000/api/orders"
+                  "https://smart-canteen-1-qysl.onrender.com/api/orders"
                 );
 
                 const orders = await response.json();
@@ -183,7 +183,7 @@
             try {
 
                 const response = await fetch(
-                    `http://localhost:5000/api/orders/${orderId}/status`,
+                `https://smart-canteen-1-qysl.onrender.com/api/orders/${orderId}/status`,
                     {
                         method: "PUT",
 

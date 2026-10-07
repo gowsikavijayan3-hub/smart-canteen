@@ -114,7 +114,7 @@ async function loadMyOrders() {
     try {
 
         const response = await fetch(
-            `http://localhost:5000/api/orders/user/${userId}`
+           `https://smart-canteen-1-qysl.onrender.com/api/orders/user/${userId}`,
         );
 
 
@@ -477,7 +477,7 @@ async function cancelOrder(orderId) {
     try {
 
         const response = await fetch(
-            `http://localhost:5000/api/orders/${orderId}/cancel`,
+           `https://smart-canteen-1-qysl.onrender.com/api/orders/${orderId}/cancel`,
             {
                 method: "PUT",
                 headers: {
