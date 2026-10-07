@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Staff QR Scanner - Smart Canteen</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+
+<body class="bg-gray-100">
+
+    <!-- NAVBAR -->
+    <nav class="bg-white shadow-md">
+
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+
+            <div>
+
+                <h1 class="text-2xl font-bold">
+                    Smart Canteen - Staff
+                </h1>
+
+                <p id="staffInfo" class="text-sm text-gray-500 mt-1">
+                    Loading staff information...
+                </p>
+
+            </div>
+
+
+            <button
+                onclick="logoutStaff()"
+                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
+
+                Logout
+
+            </button>
+
+        </div>
+
+    </nav>
+
+
+    <!-- MAIN -->
+    <main class="max-w-md mx-auto px-6 py-10">
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+
+            <h1 class="text-2xl font-bold text-center mb-6">
+                Scan Student QR
+            </h1>
+
+
+            <!-- SCANNER -->
+            <div id="reader" class="w-full"></div>
+
+
+            <!-- RESULT -->
+            <div id="result" class="mt-6">
+
+                <p class="text-gray-500 text-center">
+                    Scan a QR code to verify the order.
+                </p>
+
+            </div>
+
+
+            <!-- MANUAL TOKEN -->
+            <div class="mt-6 border-t pt-5">
+
+                <h2 class="font-semibold mb-2">
+                    Or Enter QR Token Manually
+                </h2>
+
+
+                <input
+                    type="text"
+                    id="manualToken"
+                    placeholder="Enter QR token"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-3">
+
+
+                <button
+                    onclick="verifyManualToken()"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold mt-3">
+
+                    Verify Order
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+<script>
+
+let scanner = null;
+let scannedOrder = null;
+
+
+/* ==========================================
+   STAFF INFORMATION
+========================================== */
+
+const staffData = JSON.parse(
+    localStorage.getItem("staff") || "null"
+);
+
+
+/*
+    Staff token is now required for secure
+    collection.
+*/
+
+const staffToken =
+    localStorage.getItem("staffToken") || "";
+
+
+/*
+    These are only used for displaying
+    staff information on the page.
+*/
+
+const staffCounter =
+    localStorage.getItem("staff_counter") || "";
+
+const staffId =
+    localStorage.getItem("staff_id") || "";
+
+
+/* ==========================================
+   CHECK STAFF LOGIN
+========================================== */
+
+if (!staffData || !staffToken) {
+
+    alert("Please login as staff first.");
+
+    window.location.href = "staff-login.html";
+
+}
+
+
+/* ==========================================
+   SHOW STAFF INFORMATION
+========================================== */
+
+document.getElementById("staffInfo").textContent =
+    `Staff ID: ${staffId} | Assigned Counter: ${staffCounter}`;
+
+
+/* ==========================================
+   START SCANNER
+========================================== */
+
+function startScanner() {
+
+    document.getElementById("reader").innerHTML = "";
+
+    scanner = new Html5Qrcode("reader");
+
+
+    scanner.start(
+
+        { facingMode: "environment" },
+
+        {
+            fps: 10,
+            qrbox: 250
+        },
+
+        onScanSuccess,
+
+        onScanFailure
+
+    ).catch(error => {
+
+        console.error(error);
+
+        document.getElementById("result").innerHTML = `
+
+            <div class="bg-red-50 border border-red-200 p-5 rounded-lg">
+
+                <h2 class="text-xl font-bold text-red-600">
+                    Camera Error
+                </h2>
+
+                <p class="mt-2">
+                    Please allow camera permission and try again.
+                </p>
+
+                <button
+                    onclick="scanAgain()"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold mt-5">
+
+                    Try Again
+
+                </button>
+
+            </div>
+
+        `;
+
+    });
+
+}
+
+
+/* ==========================================
+   QR SCAN SUCCESS
+========================================== */
+
+async function onScanSuccess(decodedText) {
+
+    console.log("QR Token:", decodedText);
+
+
+    if (scanner) {
+
+        try {
+
+            await scanner.stop();
+
+        } catch (error) {
+
+            console.log("Scanner already stopped.");
+
+        }
+
+    }
+
+
+    const token = decodedText.trim();
+
+
+    if (!token) {
+
+        showError("Invalid QR code.");
+
+        return;
+
+    }
+
+
+    verifyOrder(token);
+
+}
+
+
+/* ==========================================
+   VERIFY MANUAL TOKEN
+========================================== */
+
+function verifyManualToken() {
+
+    const token =
+        document.getElementById("manualToken").value.trim();
+
+
+    if (!token) {
+
+        alert("Please enter QR token.");
+
+        return;
+
+    }
+
+
+    verifyOrder(token);
+
+}
+
+
+/* ==========================================
+   VERIFY ORDER
+========================================== */
+
+async function verifyOrder(token) {
+
+    document.getElementById("result").innerHTML = `
+
+        <div class="bg-blue-50 border border-blue-200 p-5 rounded-lg text-center">
+
+            <h2 class="text-xl font-bold text-blue-700">
+                Verifying Order...
+            </h2>
+
+            <p class="mt-2 text-gray-600">
+                Please wait.
+            </p>
+
+        </div>
+
+    `;
+
+
+    try {
+
+        const response = await fetch(
+
+            "http://localhost:5000/api/orders/qr/" +
+            encodeURIComponent(token)
+
+        );
+
+
+        const data = await response.json();
+
+
+        if (!response.ok) {
+
+            showError(
+                data.message ||
+                "Invalid QR code."
+            );
+
+            return;
+
+        }
+
+
+        console.log("Order Details:", data);
+
+
+        scannedOrder = data;
+
+
+        showOrder(data);
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        showError(
+            "Cannot connect to server. Make sure the backend is running."
+        );
+
+    }
+
+}
+
+
+/* ==========================================
+   SHOW ORDER DETAILS
+========================================== */
+
+function showOrder(order) {
+
+    const status =
+        String(order.status || "").toUpperCase();
+
+
+    /* ======================================
+       ALREADY COLLECTED
+    ====================================== */
+
+    if (status === "COLLECTED") {
+
+        document.getElementById("result").innerHTML = `
+
+            <div class="bg-green-50 border border-green-300 p-5 rounded-lg">
+
+                <h2 class="text-xl font-bold text-green-700 mb-4">
+
+                    ✓ Order Already Collected
+
+                </h2>
+
+
+                <p class="mb-2">
+                    <strong>Order ID:</strong>
+                    #${order.id}
+                </p>
+
+
+                <p class="mb-2">
+                    <strong>Payment:</strong>
+                    Pay at Counter
+                </p>
+
+
+                <p class="mb-2">
+                    <strong>Status:</strong>
+
+                    <span class="text-green-600 font-bold">
+                        ${order.status}
+                    </span>
+
+                </p>
+
+
+                <p class="mb-2">
+                    <strong>Pickup Date:</strong>
+                    ${order.pickup_date || "Not available"}
+                </p>
+
+
+                <p class="mb-2">
+                    <strong>Pickup Time:</strong>
+                    ${order.pickup_time || "Not available"}
+                </p>
+
+
+                <p class="mb-2">
+                    <strong>Counter:</strong>
+                    ${order.counter || "Not assigned"}
+                </p>
+
+
+                <p class="mb-4">
+                    <strong>Total Amount:</strong>
+                    ₹${Number(order.total_amount || 0).toFixed(2)}
+                </p>
+
+
+                <div class="bg-green-100 border border-green-200 p-3 rounded-lg">
+
+                    <p class="text-green-700 font-semibold">
+                        This order has already been collected.
+                    </p>
+
+                </div>
+
+
+                <button
+                    onclick="scanAgain()"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold mt-5">
+
+                    Scan Another Order
+
+                </button>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    /* ======================================
+       CHECK COUNTER
+    ====================================== */
+
+    if (
+        String(order.counter).trim().toLowerCase() !==
+        String(staffCounter).trim().toLowerCase()
+    ) {
+
+        document.getElementById("result").innerHTML = `
+
+            <div class="bg-red-50 border border-red-300 p-5 rounded-lg">
+
+                <h2 class="text-xl font-bold text-red-600 mb-4">
+
+                    ✕ Wrong Counter
+
+                </h2>
+
+
+                <p class="mb-3">
+                    This order belongs to:
+                    <strong>${order.counter}</strong>
+                </p>
+
+
+                <p class="mb-3">
+                    You are assigned to:
+                    <strong>${staffCounter}</strong>
+                </p>
+
+
+                <div class="bg-red-100 p-3 rounded-lg">
+
+                    <p class="text-red-700 font-semibold">
+                        Please send the student to the correct counter.
+                    </p>
+
+                </div>
+
+
+                <button
+                    onclick="scanAgain()"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold mt-5">
+
+                    Scan Another Order
+
+                </button>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    /* ======================================
+       ORDER NOT READY
+    ====================================== */
+
+    if (status !== "READY") {
+
+        document.getElementById("result").innerHTML = `
+
+            <div class="bg-yellow-50 border border-yellow-300 p-5 rounded-lg">
+
+                <h2 class="text-xl font-bold text-yellow-700 mb-4">
+
+                    Order Not Ready
+
+                </h2>
+
+
+                <p class="mb-2">
+                    <strong>Order ID:</strong>
+                    #${order.id}
+                </p>
+
+
+                <p class="mb-2">
+                    <strong>Payment:</strong>
+                    Pay at Counter
+                </p>
+
+
+                <p class="mb-2">
+                    <strong>Status:</strong>
+                    ${order.status}
+                </p>
+
+
+                <p class="mb-2">
+                    <strong>Pickup Date:</strong>
+                    ${order.pickup_date || "Not available"}
+                </p>
+
+
+                <p class="mb-2">
+                    <strong>Pickup Time:</strong>
+                    ${order.pickup_time || "Not available"}
+                </p>
+
+
+                <p class="mb-2">
+                    <strong>Counter:</strong>
+                    ${order.counter || "Not assigned"}
+                </p>
+
+
+                <p class="mb-4">
+                    <strong>Total Amount:</strong>
+                    ₹${Number(order.total_amount || 0).toFixed(2)}
+                </p>
+
+
+                <div class="bg-yellow-100 border border-yellow-200 p-3 rounded-lg">
+
+                    <p class="text-yellow-700 font-semibold">
+                        Please wait until the admin marks this order as READY.
+                    </p>
+
+                </div>
+
+
+                <button
+                    onclick="scanAgain()"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold mt-5">
+
+                    Scan Another Order
+
+                </button>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    /* ======================================
+       READY ORDER
+    ====================================== */
+
+    document.getElementById("result").innerHTML = `
+
+        <div class="bg-green-50 border border-green-200 p-5 rounded-lg">
+
+            <h2 class="text-xl font-bold text-green-700 mb-4">
+
+                ✓ QR Scanned Successfully
+
+            </h2>
+
+
+            <p class="mb-2">
+                <strong>Order ID:</strong>
+                #${order.id}
+            </p>
+
+
+            <p class="mb-2">
+                <strong>Payment:</strong>
+                Pay at Counter
+            </p>
+
+
+            <p class="mb-2">
+                <strong>Status:</strong>
+
+                <span class="text-green-600 font-bold">
+                    ${order.status}
+                </span>
+
+            </p>
+
+
+            <p class="mb-2">
+                <strong>Pickup Date:</strong>
+                ${order.pickup_date || "Not available"}
+            </p>
+
+
+            <p class="mb-2">
+                <strong>Pickup Time:</strong>
+                ${order.pickup_time || "Not available"}
+            </p>
+
+
+            <p class="mb-2">
+                <strong>Counter:</strong>
+                ${order.counter || "Not assigned"}
+            </p>
+
+
+            <p class="mb-4">
+                <strong>Total Amount:</strong>
+                ₹${Number(order.total_amount || 0).toFixed(2)}
+            </p>
+
+
+            <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-5">
+
+                <p class="font-semibold text-yellow-800">
+
+                    💰 Collect payment at the counter
+                    before handing over the food.
+
+                </p>
+
+            </div>
+
+
+            <button
+                id="collectBtn"
+                onclick="confirmCollection()"
+                class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold">
+
+                ✓ Confirm Collection
+
+            </button>
+
+
+            <button
+                onclick="scanAgain()"
+                class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg font-semibold mt-3">
+
+                Scan Another Order
+
+            </button>
+
+        </div>
+
+    `;
+
+}
+
+
+/* ==========================================
+   CONFIRM COLLECTION
+========================================== */
+
+async function confirmCollection() {
+
+    if (!scannedOrder) {
+
+        alert("No order selected.");
+
+        return;
+
+    }
+
+
+    const orderId = scannedOrder.id;
+
+
+    const button =
+        document.getElementById("collectBtn");
+
+
+    button.disabled = true;
+
+    button.textContent =
+        "Updating Order...";
+
+
+    try {
+
+        /*
+            Get the secure staff JWT.
+        */
+
+        const token =
+            localStorage.getItem("staffToken");
+
+
+        if (!token) {
+
+            alert("Staff login expired. Please login again.");
+
+            window.location.href =
+                "staff-login.html";
+
+            return;
+
+        }
+
+
+        /*
+            Send JWT to backend.
+
+            IMPORTANT:
+            We are NOT sending staffCounter here.
+
+            Backend gets the counter from:
+            req.staff.counter
+        */
+
+        const response = await fetch(
+
+            `http://localhost:5000/api/orders/${orderId}/collect`,
+
+            {
+
+                method: "PUT",
+
+                headers: {
+
+                    "Authorization":
+                        "Bearer " + token
+
+                }
+
+            }
+
+        );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            alert(
+                data.message ||
+                "Failed to collect order."
+            );
+
+
+            button.disabled = false;
+
+            button.textContent =
+                "✓ Confirm Collection";
+
+            return;
+
+        }
+
+
+        /* ==================================
+           SUCCESS
+        ================================== */
+
+        document.getElementById("result").innerHTML = `
+
+            <div class="bg-green-50 border border-green-300 p-6 rounded-lg text-center">
+
+                <div class="text-5xl mb-4">
+                    ✓
+                </div>
+
+
+                <h2 class="text-2xl font-bold text-green-700 mb-3">
+
+                    Order Collected
+
+                </h2>
+
+
+                <p class="text-gray-700 mb-2">
+
+                    <strong>Order ID:</strong>
+                    #${orderId}
+
+                </p>
+
+
+                <p class="text-gray-700 mb-2">
+
+                    <strong>Payment:</strong>
+                    Pay at Counter
+
+                </p>
+
+
+                <p class="text-green-700 font-semibold">
+
+                    Payment collected and food handed over.
+
+                </p>
+
+
+                <button
+                    onclick="scanAgain()"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold mt-6">
+
+                    Scan Another Order
+
+                </button>
+
+            </div>
+
+        `;
+
+
+        scannedOrder = null;
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Cannot connect to server."
+        );
+
+
+        button.disabled = false;
+
+        button.textContent =
+            "✓ Confirm Collection";
+
+    }
+
+}
+
+
+/* ==========================================
+   SCAN AGAIN
+========================================== */
+
+async function scanAgain() {
+
+    scannedOrder = null;
+
+
+    document.getElementById("manualToken").value = "";
+
+
+    document.getElementById("result").innerHTML = `
+
+        <p class="text-gray-500 text-center">
+
+            Scan a QR code to verify the order.
+
+        </p>
+
+    `;
+
+
+    if (scanner) {
+
+        try {
+
+            await scanner.stop();
+
+        } catch (error) {
+
+            console.log("Scanner already stopped.");
+
+        }
+
+    }
+
+
+    startScanner();
+
+}
+
+
+/* ==========================================
+   ERROR
+========================================== */
+
+function showError(message) {
+
+    document.getElementById("result").innerHTML = `
+
+        <div class="bg-red-50 border border-red-200 p-5 rounded-lg">
+
+            <h2 class="text-xl font-bold text-red-600">
+
+                Invalid Order
+
+            </h2>
+
+
+            <p class="mt-2">
+
+                ${message}
+
+            </p>
+
+
+            <button
+                onclick="scanAgain()"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold mt-5">
+
+                Scan Again
+
+            </button>
+
+        </div>
+
+    `;
+
+}
+
+
+/* ==========================================
+   SCAN FAILURE
+========================================== */
+
+function onScanFailure(error) {
+
+    // Scanner continuously searches.
+    // No message needed.
+
+}
+
+
+/* ==========================================
+   LOGOUT
+========================================== */
+
+function logoutStaff() {
+
+    localStorage.removeItem("staff");
+
+    localStorage.removeItem("staff_id");
+
+    localStorage.removeItem("staff_counter");
+
+    localStorage.removeItem("staffToken");
+
+
+    window.location.href =
+        "staff-login.html";
+
+}
+
+
+/* ==========================================
+   START
+========================================== */
+
+startScanner();
+
+</script>
+
+</body>
+
+</html>

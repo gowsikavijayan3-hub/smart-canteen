@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Canteen</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .hero-bg {
+            background: linear-gradient(135deg, #eff6ff, #ffffff);
+        }
+
+        .step-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+    </style>
+</head>
+
+
+<body class="bg-gray-50 text-gray-800">
+
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="flex justify-between items-center h-16">
+
+                <!-- Logo -->
+                <a href="index.html"
+                   class="text-2xl font-bold text-blue-600">
+                    Smart Canteen
+                </a>
+
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-6">
+
+                    <a href="index.html"
+                       class="text-blue-600 font-semibold hover:text-blue-800">
+                        Home
+                    </a>
+
+                    <a href="menu.html"
+                       class="text-gray-600 hover:text-blue-600">
+                        Menu
+                    </a>
+
+                    <a href="my-orders.html"
+                       class="text-gray-600 hover:text-blue-600">
+                        My Orders
+                    </a>
+                        <a href="login-options.html"
+   id="loginLink"
+   class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700">
+    Login
+</a>
+
+                    <button
+                        id="logoutBtn"
+                        onclick="logout()"
+                        class="hidden bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-600">
+                        Logout
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+
+    <!-- =========================
+         HERO SECTION
+    ========================== -->
+
+    <section class="hero-bg">
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="min-h-[520px] flex items-center">
+
+                <div class="w-full text-center">
+
+                    <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+                        Welcome to
+                        <span class="text-blue-600">
+                            Smart Canteen
+                        </span>
+                    </h1>
+
+
+                    <p class="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+                        Order your favorite food easily, choose your pickup time,
+                        and collect your order using a simple QR code.
+                    </p>
+
+
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+
+                        <a href="menu.html"
+                           class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                            Browse Menu
+                        </a>
+
+                        <a href="my-orders.html"
+                           class="border border-blue-600 text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition">
+                            My Orders
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         HOW IT WORKS
+    ========================== -->
+
+    <section class="py-16 bg-white">
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="text-center mb-12">
+
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
+                    How It Works
+                </h2>
+
+                <p class="text-gray-600 mt-3">
+                    Order your food in just four simple steps
+                </p>
+
+            </div>
+
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+
+                <!-- STEP 1 -->
+
+                <div class="step-card bg-gray-50 rounded-xl p-6 text-center">
+
+                    <div class="w-14 h-14 mx-auto mb-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xl font-bold">
+                        1
+                    </div>
+
+                    <h3 class="text-xl font-bold mb-3">
+                        Browse Menu
+                    </h3>
+
+                    <p class="text-gray-600">
+                        Choose your favorite food items from the canteen menu.
+                    </p>
+
+                </div>
+
+
+
+                <!-- STEP 2 -->
+
+                <div class="step-card bg-gray-50 rounded-xl p-6 text-center">
+
+                    <div class="w-14 h-14 mx-auto mb-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xl font-bold">
+                        2
+                    </div>
+
+                    <h3 class="text-xl font-bold mb-3">
+                        Place Your Order
+                    </h3>
+
+                    <p class="text-gray-600">
+                        Select your pickup date, time, and pickup counter.
+                    </p>
+
+                </div>
+
+
+
+                <!-- STEP 3 -->
+
+                <div class="step-card bg-gray-50 rounded-xl p-6 text-center">
+
+                    <div class="w-14 h-14 mx-auto mb-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xl font-bold">
+                        3
+                    </div>
+
+                    <h3 class="text-xl font-bold mb-3">
+                        Confirm Order
+                    </h3>
+
+                    <p class="text-gray-600">
+                        Confirm your order and receive your QR code.
+                    </p>
+
+                </div>
+
+
+
+                <!-- STEP 4 -->
+
+                <div class="step-card bg-gray-50 rounded-xl p-6 text-center">
+
+                    <div class="w-14 h-14 mx-auto mb-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xl font-bold">
+                        4
+                    </div>
+
+                    <h3 class="text-xl font-bold mb-3">
+                        Scan &amp; Collect
+                    </h3>
+
+                    <p class="text-gray-600">
+                        Show your QR code at the pickup counter and collect your food.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         FEATURES
+    ========================== -->
+
+    <section class="py-16 bg-gray-50">
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="text-center mb-12">
+
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
+                    Why Use Smart Canteen?
+                </h2>
+
+                <p class="text-gray-600 mt-3">
+                    Simple and convenient food ordering for students
+                </p>
+
+            </div>
+
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+
+                <!-- Feature 1 -->
+
+                <div class="bg-white rounded-xl p-7 shadow-sm text-center">
+
+                    <div class="text-4xl mb-4">
+                        🍔
+                    </div>
+
+                    <h3 class="text-xl font-bold mb-3">
+                        Easy Ordering
+                    </h3>
+
+                    <p class="text-gray-600">
+                        Browse the menu and place your food order quickly and easily.
+                    </p>
+
+                </div>
+
+
+
+                <!-- Feature 2 -->
+
+                <div class="bg-white rounded-xl p-7 shadow-sm text-center">
+
+                    <div class="text-4xl mb-4">
+                        📱
+                    </div>
+
+                    <h3 class="text-xl font-bold mb-3">
+                        QR Code
+                    </h3>
+
+                    <p class="text-gray-600">
+                        Receive a unique QR code for your order and show it at the counter.
+                    </p>
+
+                </div>
+
+
+
+                <!-- Feature 3 -->
+
+                <div class="bg-white rounded-xl p-7 shadow-sm text-center">
+
+                    <div class="text-4xl mb-4">
+                        ⏱️
+                    </div>
+
+                    <h3 class="text-xl font-bold mb-3">
+                        Convenient Pickup
+                    </h3>
+
+                    <p class="text-gray-600">
+                        Choose your pickup time and collect your food from the selected counter.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         CALL TO ACTION
+    ========================== -->
+
+    <section class="py-16 bg-blue-600">
+
+        <div class="max-w-4xl mx-auto px-4 text-center text-white">
+
+            <h2 class="text-3xl md:text-4xl font-bold mb-5">
+                Ready to Order?
+            </h2>
+
+            <p class="text-blue-100 text-lg mb-8">
+                Browse the menu and place your order now.
+            </p>
+
+            <a href="menu.html"
+               class="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-bold hover:bg-gray-100 transition">
+                Order Now
+            </a>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer class="bg-gray-900 text-gray-300">
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+
+                <div>
+
+                    <h3 class="text-xl font-bold text-white mb-3">
+                        Smart Canteen
+                    </h3>
+
+                    <p class="text-gray-400">
+                        A simple and convenient platform for ordering and
+                        collecting food from the canteen.
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <h3 class="text-lg font-semibold text-white mb-3">
+                        Quick Links
+                    </h3>
+
+                    <div class="space-y-2">
+
+                        <a href="index.html"
+                           class="block hover:text-white">
+                            Home
+                        </a>
+
+                        <a href="menu.html"
+                           class="block hover:text-white">
+                            Menu
+                        </a>
+
+                        <a href="my-orders.html"
+                           class="block hover:text-white">
+                            My Orders
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+                <div>
+
+                    <h3 class="text-lg font-semibold text-white mb-3">
+                        Order Process
+                    </h3>
+
+                    <p class="text-gray-400">
+                        Browse → Order → Confirm → Scan &amp; Collect
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center">
+
+                <p class="text-gray-500 text-sm">
+                    © 2026 Smart Canteen. All rights reserved.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+
+    <script>
+
+        // Check login status
+        function checkLogin() {
+
+            const userId = localStorage.getItem("userId");
+
+            const loginLink =
+                document.getElementById("loginLink");
+
+            const logoutBtn =
+                document.getElementById("logoutBtn");
+
+
+            if (userId) {
+
+                loginLink.classList.add("hidden");
+
+                logoutBtn.classList.remove("hidden");
+
+            } else {
+
+                loginLink.classList.remove("hidden");
+
+                logoutBtn.classList.add("hidden");
+
+            }
+
+        }
+
+
+        // Logout
+        function logout() {
+
+            localStorage.removeItem("userId");
+            localStorage.removeItem("userName");
+            localStorage.removeItem("userEmail");
+
+            window.location.href = "index.html";
+
+        }
+
+
+        // Run when page loads
+        window.addEventListener(
+            "load",
+            checkLogin
+        );
+
+    </script>
+
+</body>
+
+</html>

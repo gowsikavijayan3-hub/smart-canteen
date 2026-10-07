@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Order Status - Smart Canteen</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+
+</head>
+
+<body class="bg-gray-100">
+
+    <nav class="bg-white shadow-md">
+        <div class="max-w-6xl mx-auto px-6 py-4">
+
+            <h1 class="text-2xl font-bold">
+                Smart Canteen
+            </h1>
+
+        </div>
+    </nav>
+
+
+    <main class="max-w-xl mx-auto px-6 py-10">
+
+        <h1 class="text-3xl font-bold text-center mb-8">
+            Your Order
+        </h1>
+
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+
+            <h2 class="text-xl font-bold mb-5">
+                Order Details
+            </h2>
+
+
+            <p class="mb-3">
+                Order ID:
+                <span id="orderId" class="font-bold"></span>
+            </p>
+
+
+            <p class="mb-3">
+                Total:
+                <span id="totalAmount" class="font-bold"></span>
+            </p>
+
+
+            <p class="mb-3">
+                Pickup Date:
+                <span id="pickupDate" class="font-bold"></span>
+            </p>
+
+
+            <p class="mb-3">
+                Pickup Time:
+                <span id="pickupTime" class="font-bold"></span>
+            </p>
+
+
+            <p class="mb-5">
+                Counter:
+                <span id="counter" class="font-bold"></span>
+            </p>
+
+
+            <div class="bg-blue-50 p-5 rounded-lg text-center">
+
+                <p class="text-gray-600">
+                    Order Status
+                </p>
+
+                <p
+                    id="orderStatus"
+                    class="text-2xl font-bold mt-2">
+                    Loading...
+                </p>
+
+            </div>
+
+
+        <div
+    id="qrSection"
+    class="hidden mt-6 text-center">
+
+    <h2 class="text-xl font-bold mb-3">
+        Your QR Code
+    </h2>
+
+    <div class="flex justify-center mb-4">
+
+        <img
+            id="qrImage"
+            class="w-56 h-56"
+            alt="Order QR Code">
+
+    </div>
+
+    <p class="text-sm text-gray-500">
+        Show this QR code at the pickup counter.
+    </p>
+
+</div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        const orderId =
+            localStorage.getItem("orderId");
+
+
+        document.getElementById("orderId").textContent =
+            orderId || "Not found";
+
+
+        document.getElementById("pickupDate").textContent =
+            localStorage.getItem("pickupDate") || "Not selected";
+
+
+        document.getElementById("pickupTime").textContent =
+            localStorage.getItem("pickupTime") || "Not selected";
+
+
+        document.getElementById("counter").textContent =
+            localStorage.getItem("selectedCounter") || "Not assigned";
+
+
+        async function loadOrder() {
+
+            if (!orderId) {
+
+                document.getElementById("orderStatus").textContent =
+                    "Order not found";
+
+                return;
+            }
+
+
+            try {
+
+                const response = await fetch(
+                    `http://localhost:5000/api/orders/${orderId}`
+                );
+
+
+                const order =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    document.getElementById("orderStatus").textContent =
+                        "Unable to load order";
+
+                    return;
+                }
+
+
+                document.getElementById("totalAmount").textContent =
+                    `₹${order.total_amount}`;
+
+
+                document.getElementById("orderStatus").textContent =
+                    order.status;
+
+
+               if (
+    order.qr_token &&
+    (order.status === "READY" ||
+     order.status === "COLLECTED")
+) {
+
+    document.getElementById("qrSection")
+        .classList.remove("hidden");
+
+        const qrImage =
+    document.getElementById("qrImage");
+
+qrImage.src =
+    "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data="
+    + encodeURIComponent(order.qr_token);
+    
+
+}
+
+            } catch (error) {
+
+                console.error(error);
+
+                document.getElementById("orderStatus").textContent =
+                    "Cannot connect to server.";
+
+            }
+
+        }
+
+
+        loadOrder();
+
+
+        setInterval(loadOrder, 5000);
+
+
+    </script>
+
+</body>
+
+</html>

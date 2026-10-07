@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Order QR Code - Smart Canteen</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+</head>
+
+<body class="bg-gray-100">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md">
+
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+
+            <a href="index.html" class="text-2xl font-bold">
+                Smart Canteen
+            </a>
+
+            <div class="flex gap-5">
+
+                <a href="menu.html" class="text-gray-700">
+                    Menu
+                </a>
+
+                <a href="cart.html" class="text-gray-700">
+                    Cart
+                </a>
+
+                <a href="my-orders.html" class="text-gray-700">
+                    My Orders
+                </a>
+
+                <span id="authLink"></span>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- Main -->
+    <main class="max-w-xl mx-auto px-6 py-10">
+
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+
+            <!-- Order Confirmed -->
+            <div class="mb-6">
+
+                <div class="text-green-600 text-5xl mb-3">
+                    ✓
+                </div>
+
+                <h1 class="text-3xl font-bold text-green-600">
+                    Order Confirmed
+                </h1>
+
+                <p class="text-gray-600 mt-2">
+                    Your order has been placed successfully.
+                </p>
+
+            </div>
+
+
+            <!-- Order ID -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+
+                <p class="text-gray-600 text-sm">
+                    Order ID
+                </p>
+
+                <p
+                    id="orderId"
+                    class="text-xl font-bold mt-1">
+
+                    --
+
+                </p>
+
+            </div>
+
+
+            <!-- QR Code -->
+            <div class="mb-6">
+
+                <h2 class="text-xl font-bold mb-4">
+                    Your QR Code
+                </h2>
+
+                <div
+                    id="qrcode"
+                    class="flex justify-center">
+                </div>
+
+                <p class="text-gray-500 text-sm mt-4">
+                    Show this QR code at the pickup counter.
+                </p>
+
+            </div>
+
+
+            <!-- Pickup Details -->
+            <div class="bg-gray-50 rounded-lg p-5 text-left mb-6">
+
+                <h2 class="text-lg font-bold mb-4">
+                    Pickup Details
+                </h2>
+
+
+                <!-- Pickup Date -->
+                <div class="flex justify-between border-b py-3">
+
+                    <span class="text-gray-600">
+                        Pickup Date
+                    </span>
+
+                    <span
+                        id="pickupDate"
+                        class="font-semibold">
+
+                        --
+
+                    </span>
+
+                </div>
+
+
+                <!-- Pickup Time -->
+                <div class="flex justify-between border-b py-3">
+
+                    <span class="text-gray-600">
+                        Pickup Time
+                    </span>
+
+                    <span
+                        id="pickupTime"
+                        class="font-semibold">
+
+                        --
+
+                    </span>
+
+                </div>
+
+
+                <!-- Pickup Counter -->
+                <div class="flex justify-between py-3">
+
+                    <span class="text-gray-600">
+                        Pickup Counter
+                    </span>
+
+                    <span
+                        id="selectedCounter"
+                        class="font-semibold">
+
+                        --
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- Counter Payment Information -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+
+                <h3 class="font-bold text-yellow-800">
+                    Pay at Counter
+                </h3>
+
+                <p class="text-sm text-gray-600 mt-2">
+                    Please pay by cash or UPI at the counter
+                    when collecting your food.
+                </p>
+
+            </div>
+
+
+            <!-- Buttons -->
+            <div class="space-y-3">
+
+                <a
+                    href="my-orders.html"
+                    class="block w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700">
+
+                    View My Orders
+
+                </a>
+
+
+                <a
+                    href="menu.html"
+                    class="block w-full border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-100">
+
+                    Back to Menu
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        // ==========================================
+        // GET ORDER DETAILS
+        // ==========================================
+
+        const orderId =
+            localStorage.getItem("orderId");
+
+        const qrToken =
+            localStorage.getItem("qr_token");
+
+        const pickupDate =
+            localStorage.getItem("pickupDate");
+
+        const pickupTime =
+            localStorage.getItem("pickupTime");
+
+        const selectedCounter =
+            localStorage.getItem("selectedCounter");
+
+
+        // ==========================================
+        // DISPLAY ORDER DETAILS
+        // ==========================================
+
+        document.getElementById(
+            "orderId"
+        ).textContent =
+            orderId || "--";
+
+
+        document.getElementById(
+            "pickupDate"
+        ).textContent =
+            pickupDate || "--";
+
+
+        document.getElementById(
+            "pickupTime"
+        ).textContent =
+            formatTime(pickupTime);
+
+
+        document.getElementById(
+            "selectedCounter"
+        ).textContent =
+            selectedCounter || "--";
+
+
+        // ==========================================
+        // FORMAT TIME
+        // ==========================================
+
+        function formatTime(time) {
+
+            if (!time) {
+                return "--";
+            }
+
+            const parts =
+                time.split(":");
+
+            let hour =
+                parseInt(parts[0]);
+
+            const minute =
+                parts[1];
+
+            const ampm =
+                hour >= 12
+                    ? "PM"
+                    : "AM";
+
+
+            hour =
+                hour % 12 || 12;
+
+
+            return `${hour}:${minute} ${ampm}`;
+
+        }
+
+
+        // ==========================================
+        // GENERATE QR CODE
+        // ==========================================
+
+        if (qrToken) {
+
+            new QRCode(
+                document.getElementById("qrcode"),
+                {
+                    text: qrToken,
+                    width: 220,
+                    height: 220
+                }
+            );
+
+        } else {
+
+            document.getElementById(
+                "qrcode"
+            ).innerHTML = `
+
+                <p class="text-red-500 font-semibold">
+                    QR code is not available.
+                </p>
+
+                <p class="text-gray-500 text-sm mt-2">
+                    Please contact the canteen if you need help.
+                </p>
+
+            `;
+
+        }
+
+
+        // ==========================================
+        // LOGOUT
+        // ==========================================
+
+        function logout() {
+
+            localStorage.removeItem("student");
+            localStorage.removeItem("user_id");
+
+            window.location.href =
+                "login.html";
+
+        }
+
+
+        // ==========================================
+        // LOGIN / LOGOUT LINK
+        // ==========================================
+
+        const student =
+            localStorage.getItem("student");
+
+        const authLink =
+            document.getElementById("authLink");
+
+
+        if (student) {
+
+            authLink.innerHTML = `
+
+                <button
+                    onclick="logout()"
+                    class="text-red-600 font-semibold">
+
+                    Logout
+
+                </button>
+
+            `;
+
+        } else {
+
+            authLink.innerHTML = `
+
+                <a
+                    href="login.html"
+                    class="text-gray-700">
+
+                    Login
+
+                </a>
+
+            `;
+
+        }
+
+    </script>
+
+</body>
+
+</html>

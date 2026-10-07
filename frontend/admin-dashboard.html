@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard - Smart Canteen</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+    <!-- ================= NAVBAR ================= -->
+
+    <nav class="bg-white shadow-md">
+
+        <div class="max-w-7xl mx-auto px-6 py-4
+                    flex justify-between items-center">
+
+            <div>
+
+                <h1 class="text-2xl font-bold text-gray-800">
+                    Smart Canteen
+                </h1>
+
+                <p class="text-sm text-gray-500">
+                    Admin Dashboard
+                </p>
+
+            </div>
+
+            <div class="flex items-center gap-3">
+
+                <!-- Staff Management -->
+
+                <button
+                    onclick="openStaffManagement()"
+                    class="bg-purple-600 hover:bg-purple-700
+                           text-white px-4 py-2 rounded-lg">
+
+                    👥 Staff Management
+
+                </button>
+
+
+                <!-- Logout -->
+
+                <button
+                    onclick="logout()"
+                    class="bg-red-500 hover:bg-red-600
+                           text-white px-4 py-2 rounded-lg">
+
+                    Logout
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="max-w-7xl mx-auto px-6 py-10">
+
+        <div class="mb-8">
+
+            <h1 class="text-3xl font-bold text-gray-800">
+                Admin Dashboard
+            </h1>
+
+            <p class="text-gray-500 mt-1">
+                Manage food items and monitor customer orders.
+            </p>
+
+        </div>
+
+
+        <!-- ================= STATISTICS ================= -->
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+
+            <!-- Total Food -->
+
+            <div class="bg-white rounded-xl shadow-sm p-6">
+
+                <p class="text-gray-500">
+                    Total Food Items
+                </p>
+
+                <h2
+                    id="totalItems"
+                    class="text-3xl font-bold mt-2">
+
+                    0
+
+                </h2>
+
+            </div>
+
+
+            <!-- Available Food -->
+
+            <div class="bg-white rounded-xl shadow-sm p-6">
+
+                <p class="text-gray-500">
+                    Available Items
+                </p>
+
+                <h2
+                    id="availableItems"
+                    class="text-3xl font-bold mt-2">
+
+                    0
+
+                </h2>
+
+            </div>
+
+
+            <!-- Orders -->
+
+            <div class="bg-white rounded-xl shadow-sm p-6">
+
+                <p class="text-gray-500">
+                    Total Orders
+                </p>
+
+                <h2
+                    id="totalOrders"
+                    class="text-3xl font-bold mt-2">
+
+                    0
+
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= FOOD MANAGEMENT ================= -->
+
+        <div class="bg-white rounded-xl shadow-sm p-6">
+
+            <div class="flex flex-col md:flex-row
+                        justify-between md:items-center
+                        gap-4 mb-6">
+
+                <div>
+
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        🍔 Food Management
+                    </h2>
+
+                    <p class="text-gray-500 text-sm mt-1">
+                        Add, edit, remove and control food availability.
+                    </p>
+
+                </div>
+
+
+                <button
+                    onclick="addFood()"
+                    class="bg-blue-600 hover:bg-blue-700
+                           text-white px-5 py-3 rounded-lg">
+
+                    + Add Food
+
+                </button>
+
+            </div>
+
+
+            <!-- Food Table -->
+
+            <div class="overflow-x-auto">
+
+                <table class="w-full text-left">
+
+                    <thead>
+
+                        <tr class="border-b bg-gray-50">
+
+                            <th class="p-3">
+                                Food Name
+                            </th>
+
+                            <th class="p-3">
+                                Price
+                            </th>
+
+                            <th class="p-3">
+                                Availability
+                            </th>
+
+                            <th class="p-3">
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="foodTable">
+
+                        <tr>
+
+                            <td
+                                colspan="4"
+                                class="p-6 text-center text-gray-500">
+
+                                Loading food items...
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= ORDER MANAGEMENT ================= -->
+
+        <div class="bg-white rounded-xl shadow-sm p-6 mt-8">
+
+            <div class="flex flex-col md:flex-row
+                        justify-between md:items-center
+                        gap-4 mb-6">
+
+                <div>
+
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        📦 Order Management
+                    </h2>
+
+                    <p class="text-gray-500 text-sm mt-1">
+                        Manage food preparation and order status.
+                    </p>
+
+                </div>
+
+
+                <button
+                    onclick="loadOrders()"
+                    class="bg-blue-600 hover:bg-blue-700
+                           text-white px-5 py-2 rounded-lg">
+
+                    🔄 Refresh Orders
+
+                </button>
+
+            </div>
+
+
+            <div
+                id="ordersContainer"
+                class="space-y-4">
+
+                Loading orders...
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script>
+
+        const API = "http://localhost:5000";
+
+
+        // ==========================================
+        // GET ADMIN TOKEN
+        // ==========================================
+
+        function getAdminToken() {
+
+            return localStorage.getItem("adminToken");
+
+        }
+
+
+        // ==========================================
+        // CHECK ADMIN LOGIN
+        // ==========================================
+
+        const adminToken = getAdminToken();
+
+        if (!adminToken) {
+
+            alert("Admin login required.");
+
+            window.location.href =
+                "admin-login.html";
+
+        }
+
+
+        // ==========================================
+        // HANDLE AUTH ERROR
+        // ==========================================
+
+        function handleAuthError(response) {
+
+            if (
+                response.status === 401 ||
+                response.status === 403
+            ) {
+
+                localStorage.removeItem("adminToken");
+                localStorage.removeItem("admin");
+                localStorage.removeItem("admin_id");
+
+                alert(
+                    "Admin session expired. Please login again."
+                );
+
+                window.location.href =
+                    "admin-login.html";
+
+                return true;
+
+            }
+
+            return false;
+
+        }
+
+
+        // ==========================================
+        // OPEN STAFF MANAGEMENT
+        // ==========================================
+
+        function openStaffManagement() {
+
+            const token = getAdminToken();
+
+            if (!token) {
+
+                alert(
+                    "Admin login required. Please login again."
+                );
+
+                window.location.href =
+                    "admin-login.html";
+
+                return;
+
+            }
+
+            window.location.href =
+                "staff-management.html";
+
+        }
+
+
+        // ==========================================
+        // LOAD FOOD
+        // ==========================================
+
+        async function loadFood() {
+
+            const table =
+                document.getElementById("foodTable");
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API}/api/food`
+                    );
+
+
+                if (handleAuthError(response)) {
+                    return;
+                }
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Failed to load food"
+                    );
+
+                }
+
+
+                const foods =
+                    await response.json();
+
+
+                displayFood(foods);
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+                table.innerHTML = `
+
+                    <tr>
+
+                        <td
+                            colspan="4"
+                            class="p-6 text-center text-red-500">
+
+                            Cannot load food items.
+                            Make sure the backend is running.
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+
+        }
+
+
+        // ==========================================
+        // DISPLAY FOOD
+        // ==========================================
+
+        function displayFood(foods) {
+
+            const table =
+                document.getElementById("foodTable");
+
+            table.innerHTML = "";
+
+
+            if (!foods || foods.length === 0) {
+
+                table.innerHTML = `
+
+                    <tr>
+
+                        <td
+                            colspan="4"
+                            class="p-6 text-center text-gray-500">
+
+                            No food items found.
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+                updateFoodStatistics([]);
+
+                return;
+
+            }
+
+
+            foods.forEach(food => {
+
+                const available =
+                    Boolean(Number(food.available));
+
+
+                table.innerHTML += `
+
+                    <tr class="border-b hover:bg-gray-50">
+
+                        <td class="p-3 font-semibold">
+
+                            ${escapeHtml(food.name)}
+
+                        </td>
+
+
+                        <td class="p-3">
+
+                            ₹${Number(food.price).toFixed(2)}
+
+                        </td>
+
+
+                        <td class="p-3">
+
+                            <span
+                                class="
+                                ${available
+                                    ? "text-green-600 bg-green-50"
+                                    : "text-red-600 bg-red-50"}
+                                px-3 py-1 rounded-full
+                                text-sm font-semibold">
+
+                                ${available
+                                    ? "Available"
+                                    : "Unavailable"}
+
+                            </span>
+
+                        </td>
+
+
+                        <td class="p-3">
+
+                            <div class="flex flex-wrap gap-2">
+
+
+                                <!-- Availability -->
+
+                                <button
+                                    onclick="toggleAvailability(
+                                        ${food.id},
+                                        ${available}
+                                    )"
+                                    class="
+                                    bg-yellow-500
+                                    hover:bg-yellow-600
+                                    text-white
+                                    px-3 py-2
+                                    rounded-lg
+                                    text-sm">
+
+                                    ${available
+                                        ? "Disable"
+                                        : "Enable"}
+
+                                </button>
+
+
+                                <!-- Edit -->
+
+                                <button
+                                    onclick="editFood(
+                                        ${food.id},
+                                        '${escapeJs(food.name)}',
+                                        ${Number(food.price)}
+                                    )"
+                                    class="
+                                    bg-blue-500
+                                    hover:bg-blue-600
+                                    text-white
+                                    px-3 py-2
+                                    rounded-lg
+                                    text-sm">
+
+                                    Edit
+
+                                </button>
+
+
+                                <!-- Delete -->
+
+                                <button
+                                    onclick="deleteFood(
+                                        ${food.id},
+                                        '${escapeJs(food.name)}'
+                                    )"
+                                    class="
+                                    bg-red-500
+                                    hover:bg-red-600
+                                    text-white
+                                    px-3 py-2
+                                    rounded-lg
+                                    text-sm">
+
+                                    Delete
+
+                                </button>
+
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            });
+
+
+            updateFoodStatistics(foods);
+
+        }
+
+
+        // ==========================================
+        // FOOD STATISTICS
+        // ==========================================
+
+        function updateFoodStatistics(foods) {
+
+            document.getElementById("totalItems")
+                .textContent = foods.length;
+
+
+            const available =
+                foods.filter(
+                    food =>
+                        Boolean(Number(food.available))
+                ).length;
+
+
+            document.getElementById("availableItems")
+                .textContent = available;
+
+        }
+
+
+        // ==========================================
+        // ADD FOOD
+        // ==========================================
+
+        async function addFood() {
+
+            const token =
+                getAdminToken();
+
+
+            if (!token) {
+
+                alert(
+                    "Admin login required. Please login again."
+                );
+
+                window.location.href =
+                    "admin-login.html";
+
+                return;
+
+            }
+
+
+            const name =
+                prompt("Enter food name:");
+
+
+            if (!name || !name.trim()) {
+                return;
+            }
+
+
+            const price =
+                prompt("Enter food price:");
+
+
+            if (
+                !price ||
+                isNaN(price) ||
+                Number(price) <= 0
+            ) {
+
+                alert(
+                    "Please enter a valid price."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API}/api/food`,
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    "Bearer " + token
+
+                            },
+
+                            body: JSON.stringify({
+
+                                name:
+                                    name.trim(),
+
+                                price:
+                                    Number(price),
+
+                                available:
+                                    true
+
+                            })
+
+                        }
+                    );
+
+
+                if (handleAuthError(response)) {
+                    return;
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    alert(
+                        data.message ||
+                        "Failed to add food."
+                    );
+
+                    return;
+
+                }
+
+
+                alert(
+                    "Food added successfully!"
+                );
+
+
+                loadFood();
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Cannot connect to backend."
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // EDIT FOOD
+        // ==========================================
+
+        async function editFood(
+            id,
+            oldName,
+            oldPrice
+        ) {
+
+            const token =
+                getAdminToken();
+
+
+            if (!token) {
+
+                alert(
+                    "Admin login required. Please login again."
+                );
+
+                window.location.href =
+                    "admin-login.html";
+
+                return;
+
+            }
+
+
+            const newName =
+                prompt(
+                    "Enter new food name:",
+                    oldName
+                );
+
+
+            if (!newName || !newName.trim()) {
+                return;
+            }
+
+
+            const newPrice =
+                prompt(
+                    "Enter new food price:",
+                    oldPrice
+                );
+
+
+            if (
+                !newPrice ||
+                isNaN(newPrice) ||
+                Number(newPrice) <= 0
+            ) {
+
+                alert(
+                    "Please enter a valid price."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API}/api/food/${id}`,
+                        {
+
+                            method: "PUT",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    "Bearer " + token
+
+                            },
+
+                            body: JSON.stringify({
+
+                                name:
+                                    newName.trim(),
+
+                                price:
+                                    Number(newPrice)
+
+                            })
+
+                        }
+                    );
+
+
+                if (handleAuthError(response)) {
+                    return;
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    alert(
+                        data.message ||
+                        "Failed to update food."
+                    );
+
+                    return;
+
+                }
+
+
+                alert(
+                    "Food updated successfully!"
+                );
+
+
+                loadFood();
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Cannot connect to backend."
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // DELETE FOOD
+        // ==========================================
+
+        async function deleteFood(
+            id,
+            name
+        ) {
+
+            const token =
+                getAdminToken();
+
+
+            if (!token) {
+
+                alert(
+                    "Admin login required. Please login again."
+                );
+
+                window.location.href =
+                    "admin-login.html";
+
+                return;
+
+            }
+
+
+            const confirmDelete =
+                confirm(
+                    `Are you sure you want to delete "${name}"?`
+                );
+
+
+            if (!confirmDelete) {
+                return;
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API}/api/food/${id}`,
+                        {
+
+                            method: "DELETE",
+
+                            headers: {
+
+                                "Authorization":
+                                    "Bearer " + token
+
+                            }
+
+                        }
+                    );
+
+
+                if (handleAuthError(response)) {
+                    return;
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    alert(
+                        data.message ||
+                        "Failed to delete food."
+                    );
+
+                    return;
+
+                }
+
+
+                alert(
+                    "Food deleted successfully!"
+                );
+
+
+                loadFood();
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Cannot connect to backend."
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // TOGGLE AVAILABILITY
+        // ==========================================
+
+        async function toggleAvailability(
+            id,
+            currentAvailability
+        ) {
+
+            const token =
+                getAdminToken();
+
+
+            if (!token) {
+
+                alert(
+                    "Admin login required. Please login again."
+                );
+
+                window.location.href =
+                    "admin-login.html";
+
+                return;
+
+            }
+
+
+            const newAvailability =
+                !currentAvailability;
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API}/api/food/${id}/availability`,
+                        {
+
+                            method: "PUT",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    "Bearer " + token
+
+                            },
+
+                            body: JSON.stringify({
+
+                                available:
+                                    newAvailability
+                                        ? 1
+                                        : 0
+
+                            })
+
+                        }
+                    );
+
+
+                if (handleAuthError(response)) {
+                    return;
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    alert(
+                        data.message ||
+                        "Failed to update availability."
+                    );
+
+                    return;
+
+                }
+
+
+                loadFood();
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Cannot connect to backend."
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // LOAD ORDERS
+        // ==========================================
+
+        async function loadOrders() {
+
+            const container =
+                document.getElementById(
+                    "ordersContainer"
+                );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API}/api/orders`
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Failed to load orders"
+                    );
+
+                }
+
+
+                const orders =
+                    await response.json();
+
+
+                document.getElementById(
+                    "totalOrders"
+                ).textContent =
+                    orders.length;
+
+
+                container.innerHTML = "";
+
+
+                if (
+                    !orders ||
+                    orders.length === 0
+                ) {
+
+                    container.innerHTML = `
+
+                        <div
+                            class="
+                            text-center
+                            py-10
+                            text-gray-500">
+
+                            No orders found.
+
+                        </div>
+
+                    `;
+
+                    return;
+
+                }
+
+
+                orders.forEach(order => {
+
+                    displayOrder(
+                        container,
+                        order
+                    );
+
+                });
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+                container.innerHTML = `
+
+                    <div
+                        class="
+                        text-center
+                        py-10
+                        text-red-500">
+
+                        Cannot load orders.
+                        Make sure the backend is running.
+
+                    </div>
+
+                `;
+
+            }
+
+        }
+
+
+        // ==========================================
+        // DISPLAY ORDER
+        // ==========================================
+
+        function displayOrder(
+            container,
+            order
+        ) {
+
+            let statusBadge = "";
+            let actionArea = "";
+
+
+            // ==========================================
+            // STATUS
+            // ==========================================
+
+            if (order.status === "PLACED") {
+
+                statusBadge = `
+
+                    <span
+                        class="
+                        bg-blue-100
+                        text-blue-700
+                        px-3 py-1
+                        rounded-full
+                        text-sm
+                        font-semibold">
+
+                        PLACED
+
+                    </span>
+
+                `;
+
+
+                actionArea = `
+
+                    <button
+                        onclick="
+                            updateOrderStatus(
+                                ${order.id},
+                                'PREPARING'
+                            )
+                        "
+                        class="
+                        bg-yellow-500
+                        hover:bg-yellow-600
+                        text-white
+                        px-4 py-2
+                        rounded-lg">
+
+                        Start Preparing
+
+                    </button>
+
+                `;
+
+            }
+
+
+            else if (
+                order.status === "PREPARING"
+            ) {
+
+                statusBadge = `
+
+                    <span
+                        class="
+                        bg-yellow-100
+                        text-yellow-700
+                        px-3 py-1
+                        rounded-full
+                        text-sm
+                        font-semibold">
+
+                        PREPARING
+
+                    </span>
+
+                `;
+
+
+                actionArea = `
+
+                    <button
+                        onclick="
+                            updateOrderStatus(
+                                ${order.id},
+                                'READY'
+                            )
+                        "
+                        class="
+                        bg-green-600
+                        hover:bg-green-700
+                        text-white
+                        px-4 py-2
+                        rounded-lg">
+
+                        Mark Ready
+
+                    </button>
+
+                `;
+
+            }
+
+
+            else if (
+                order.status === "READY"
+            ) {
+
+                statusBadge = `
+
+                    <span
+                        class="
+                        bg-green-100
+                        text-green-700
+                        px-3 py-1
+                        rounded-full
+                        text-sm
+                        font-semibold">
+
+                        READY
+
+                    </span>
+
+                `;
+
+
+                actionArea = `
+
+                    <div
+                        class="
+                        bg-gray-100
+                        text-gray-600
+                        px-4 py-2
+                        rounded-lg">
+
+                        ⏳ Waiting for staff collection
+
+                    </div>
+
+                `;
+
+            }
+
+
+            else if (
+                order.status === "COLLECTED"
+            ) {
+
+                statusBadge = `
+
+                    <span
+                        class="
+                        bg-green-100
+                        text-green-700
+                        px-3 py-1
+                        rounded-full
+                        text-sm
+                        font-semibold">
+
+                        COLLECTED
+
+                    </span>
+
+                `;
+
+
+                actionArea = `
+
+                    <div
+                        class="
+                        bg-green-50
+                        text-green-700
+                        px-4 py-2
+                        rounded-lg
+                        font-semibold">
+
+                        ✓ ORDER COLLECTED
+
+                    </div>
+
+                `;
+
+            }
+
+
+            else if (
+                order.status === "CANCELLED"
+            ) {
+
+                statusBadge = `
+
+                    <span
+                        class="
+                        bg-red-100
+                        text-red-700
+                        px-3 py-1
+                        rounded-full
+                        text-sm
+                        font-semibold">
+
+                        CANCELLED
+
+                    </span>
+
+                `;
+
+
+                actionArea = `
+
+                    <div
+                        class="
+                        bg-red-50
+                        text-red-600
+                        px-4 py-2
+                        rounded-lg">
+
+                        Order Cancelled
+
+                    </div>
+
+                `;
+
+            }
+
+
+            else {
+
+                statusBadge = `
+
+                    <span
+                        class="
+                        bg-gray-100
+                        text-gray-700
+                        px-3 py-1
+                        rounded-full
+                        text-sm
+                        font-semibold">
+
+                        ${escapeHtml(
+                            order.status ||
+                            "UNKNOWN"
+                        )}
+
+                    </span>
+
+                `;
+
+            }
+
+
+            // ==========================================
+            // STUDENT INFORMATION
+            // ==========================================
+
+            const studentName =
+                order.student_name ||
+                order.name ||
+                order.studentName ||
+                "Student";
+
+
+            const studentId =
+                order.student_id ||
+                order.studentId ||
+                "Not available";
+
+
+            // ==========================================
+            // ORDERED FOOD
+            // ==========================================
+
+            let foodHTML = "";
+
+
+            if (
+                Array.isArray(order.items) &&
+                order.items.length > 0
+            ) {
+
+                foodHTML = `
+
+                    <div class="mt-4">
+
+                        <h4 class="
+                            font-semibold
+                            text-gray-800
+                            mb-2">
+
+                            🍴 Ordered Food
+
+                        </h4>
+
+
+                        <div class="
+                            bg-gray-50
+                            rounded-lg
+                            border
+                            divide-y">
+
+                `;
+
+
+                order.items.forEach(item => {
+
+                    const foodName =
+                        item.food_name ||
+                        item.name ||
+                        item.foodName ||
+                        "Food Item";
+
+
+                    const quantity =
+                        Number(
+                            item.quantity || 0
+                        );
+
+
+                    const price =
+                        Number(
+                            item.price || 0
+                        );
+
+
+                    const itemTotal =
+                        price * quantity;
+
+
+                    foodHTML += `
+
+                        <div
+                            class="
+                            p-3
+                            flex
+                            flex-col
+                            sm:flex-row
+                            sm:justify-between
+                            gap-2">
+
+                            <div>
+
+                                <p class="
+                                    font-medium
+                                    text-gray-800">
+
+                                    ${escapeHtml(foodName)}
+
+                                </p>
+
+
+                                <p class="
+                                    text-sm
+                                    text-gray-500">
+
+                                    Quantity: ${quantity}
+
+                                </p>
+
+                            </div>
+
+
+                            <div class="
+                                font-semibold
+                                text-gray-700">
+
+                                ₹${itemTotal.toFixed(2)}
+
+                            </div>
+
+                        </div>
+
+                    `;
+
+                });
+
+
+                foodHTML += `
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+
+
+            else {
+
+                foodHTML = `
+
+                    <div
+                        class="
+                        mt-4
+                        bg-yellow-50
+                        border
+                        border-yellow-200
+                        rounded-lg
+                        p-3
+                        text-yellow-700">
+
+                        ⚠️ Food item details are not available
+                        for this order.
+
+                    </div>
+
+                `;
+
+            }
+
+
+            // ==========================================
+            // COMPLETE ORDER CARD
+            // ==========================================
+
+            container.innerHTML += `
+
+                <div
+                    class="
+                    border
+                    rounded-xl
+                    p-5
+                    hover:shadow-sm
+                    transition
+                    bg-white">
+
+
+                    <!-- TOP SECTION -->
+
+                    <div
+                        class="
+                        flex
+                        flex-col
+                        md:flex-row
+                        justify-between
+                        gap-5">
+
+
+                        <div class="w-full">
+
+
+                            <!-- ORDER ID + STATUS -->
+
+                            <div
+                                class="
+                                flex
+                                flex-wrap
+                                items-center
+                                gap-3
+                                mb-4">
+
+                                <h3
+                                    class="
+                                    text-xl
+                                    font-bold
+                                    text-gray-800">
+
+                                    Order #${order.id}
+
+                                </h3>
+
+
+                                ${statusBadge}
+
+                            </div>
+
+
+                            <!-- STUDENT INFORMATION -->
+
+                            <div
+                                class="
+                                bg-blue-50
+                                border
+                                border-blue-100
+                                rounded-lg
+                                p-4
+                                mb-4">
+
+                                <h4
+                                    class="
+                                    font-semibold
+                                    text-blue-800
+                                    mb-2">
+
+                                    👤 Student Details
+
+                                </h4>
+
+
+                                <div
+                                    class="
+                                    grid
+                                    grid-cols-1
+                                    md:grid-cols-2
+                                    gap-2">
+
+                                    <p class="text-gray-700">
+
+                                        <strong>
+                                            Student Name:
+                                        </strong>
+
+                                        ${escapeHtml(
+                                            studentName
+                                        )}
+
+                                    </p>
+
+
+                                    <p class="text-gray-700">
+
+                                        <strong>
+                                            Student ID:
+                                        </strong>
+
+                                        ${escapeHtml(
+                                            studentId
+                                        )}
+
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- ORDER DETAILS -->
+
+                            <div
+                                class="
+                                grid
+                                grid-cols-1
+                                md:grid-cols-2
+                                gap-2">
+
+                                <p class="text-gray-700">
+
+                                    <strong>
+                                        Total:
+                                    </strong>
+
+                                    ₹${Number(
+                                        order.total_amount ||
+                                        0
+                                    ).toFixed(2)}
+
+                                </p>
+
+
+                                <p class="text-gray-700">
+
+                                    <strong>
+                                        Counter:
+                                    </strong>
+
+                                    ${escapeHtml(
+                                        order.counter || ""
+                                    )}
+
+                                </p>
+
+
+                                <p class="text-gray-700">
+
+                                    <strong>
+                                        Pickup Date:
+                                    </strong>
+
+                                    ${escapeHtml(
+                                        order.pickup_date || ""
+                                    )}
+
+                                </p>
+
+
+                                <p class="text-gray-700">
+
+                                    <strong>
+                                        Pickup Time:
+                                    </strong>
+
+                                    ${escapeHtml(
+                                        order.pickup_time || ""
+                                    )}
+
+                                </p>
+
+                            </div>
+
+
+                            <!-- ORDERED FOOD -->
+
+                            ${foodHTML}
+
+
+                        </div>
+
+
+                        <!-- ACTION -->
+
+                        <div
+                            class="
+                            flex
+                            items-start
+                            md:justify-end
+                            min-w-fit">
+
+                            ${actionArea}
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+
+
+        // ==========================================
+        // UPDATE ORDER STATUS
+        // ==========================================
+
+        async function updateOrderStatus(
+            orderId,
+            status
+        ) {
+
+            const token =
+                getAdminToken();
+
+
+            if (!token) {
+
+                alert(
+                    "Admin login required. Please login again."
+                );
+
+                window.location.href =
+                    "admin-login.html";
+
+                return;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API}/api/orders/${orderId}/status`,
+                        {
+
+                            method: "PUT",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    "Bearer " + token
+
+                            },
+
+                            body: JSON.stringify({
+
+                                status:
+                                    status
+
+                            })
+
+                        }
+                    );
+
+
+                if (handleAuthError(response)) {
+                    return;
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    alert(
+                        data.message ||
+                        "Failed to update order."
+                    );
+
+                    return;
+
+                }
+
+
+                loadOrders();
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Cannot connect to server."
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // ESCAPE HTML
+        // ==========================================
+
+        function escapeHtml(value) {
+
+            return String(value ?? "")
+
+                .replace(/&/g, "&amp;")
+
+                .replace(/</g, "&lt;")
+
+                .replace(/>/g, "&gt;")
+
+                .replace(/"/g, "&quot;")
+
+                .replace(/'/g, "&#039;");
+
+        }
+
+
+        // ==========================================
+        // ESCAPE JAVASCRIPT
+        // ==========================================
+
+        function escapeJs(value) {
+
+            return String(value ?? "")
+
+                .replace(/\\/g, "\\\\")
+
+                .replace(/'/g, "\\'");
+
+        }
+
+
+        // ==========================================
+        // LOGOUT
+        // ==========================================
+
+        function logout() {
+
+            localStorage.removeItem(
+                "admin"
+            );
+
+            localStorage.removeItem(
+                "adminToken"
+            );
+
+            localStorage.removeItem(
+                "admin_id"
+            );
+
+
+            window.location.href =
+                "admin-login.html";
+
+        }
+
+
+        // ==========================================
+        // INITIAL LOAD
+        // ==========================================
+
+        loadFood();
+
+        loadOrders();
+
+
+        // ==========================================
+        // AUTO REFRESH ORDERS
+        // ==========================================
+
+        setInterval(
+            loadOrders,
+            3000
+        );
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,267 @@
+    <!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Student Register - Smart Canteen</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+
+<body class="bg-gray-100">
+
+
+    <!-- Navbar -->
+
+    <nav class="bg-white shadow-md">
+
+        <div class="max-w-6xl mx-auto px-6 py-4">
+
+            <a href="index.html"
+               class="text-2xl font-bold">
+
+                Smart Canteen
+
+            </a>
+
+        </div>
+
+    </nav>
+
+
+
+    <!-- Register Form -->
+
+    <main class="max-w-md mx-auto px-6 py-10">
+
+        <div class="bg-white p-8 rounded-lg shadow-md">
+
+
+            <h1 class="text-3xl font-bold text-center mb-8">
+
+                Student Registration
+
+            </h1>
+
+
+            <form id="registerForm">
+
+
+                <!-- Name -->
+
+                <label class="block font-semibold mb-2">
+                    Full Name
+                </label>
+
+                <input
+                    type="text"
+                    id="name"
+                    placeholder="Enter your name"
+                    required
+                    class="w-full border p-3 rounded-lg mb-5"
+                >
+
+
+                <!-- Email -->
+
+                <label class="block font-semibold mb-2">
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Enter your email"
+                    required
+                    class="w-full border p-3 rounded-lg mb-5"
+                >
+
+
+                <!-- Student ID -->
+
+                <label class="block font-semibold mb-2">
+                    Student ID
+                </label>
+
+                <input
+                    type="text"
+                    id="studentId"
+                    placeholder="Enter student ID"
+                    required
+                    class="w-full border p-3 rounded-lg mb-5"
+                >
+
+
+                <!-- Password -->
+
+                <label class="block font-semibold mb-2">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Create password"
+                    required
+                    class="w-full border p-3 rounded-lg mb-5"
+                >
+
+
+                <!-- Confirm Password -->
+
+                <label class="block font-semibold mb-2">
+                    Confirm Password
+                </label>
+
+                <input
+                    type="password"
+                    id="confirmPassword"
+                    placeholder="Confirm password"
+                    required
+                    class="w-full border p-3 rounded-lg mb-6"
+                >
+
+
+                <!-- Register Button -->
+
+                <button
+                    type="submit"
+                    class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700">
+
+                    Register
+
+                </button>
+
+
+            </form>
+
+
+            <!-- Login Link -->
+
+            <p class="text-center mt-6">
+
+                Already have an account?
+
+                <a href="login.html"
+                   class="text-blue-600 font-semibold">
+
+                    Login
+
+                </a>
+
+            </p>
+
+
+        </div>
+
+    </main>
+
+
+<script>
+
+const registerForm =
+    document.getElementById("registerForm");
+
+
+registerForm.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+
+    const name =
+        document.getElementById("name").value;
+
+    const email =
+        document.getElementById("email").value;
+
+    const studentId =
+        document.getElementById("studentId").value;
+
+    const password =
+        document.getElementById("password").value;
+
+    const confirmPassword =
+        document.getElementById("confirmPassword").value;
+
+
+    // Check password
+
+    if (password !== confirmPassword) {
+
+        alert("Passwords do not match.");
+
+        return;
+
+    }
+
+
+    try {
+
+        const response = await fetch(
+            "http://localhost:5000/api/auth/register",
+            {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+                                                                                                                                                                                                                                                                                    
+
+                    name: name,
+                    email: email,
+                    studentId: studentId,
+                    password: password
+
+                })
+
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        if (response.ok) {
+
+            alert(data.message);
+
+            registerForm.reset();
+
+            window.location.href = "login.html";
+
+        } else {
+
+            alert(data.message);
+
+        }
+
+
+    } catch (error) {
+
+        console.log(error);
+
+        alert(
+            "Cannot connect to server. Make sure Node.js server is running."
+        );
+
+    }
+
+});
+
+</script>
+
+
+</body>
+
+</html>
+       

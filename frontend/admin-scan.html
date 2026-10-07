@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>QR Verification - Smart Canteen</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+    <nav class="bg-white shadow-md">
+        <div class="max-w-6xl mx-auto px-6 py-4">
+
+            <h1 class="text-2xl font-bold">
+                Smart Canteen - Admin
+            </h1>
+
+        </div>
+    </nav>
+
+
+    <main class="max-w-xl mx-auto px-6 py-10">
+
+        <div class="bg-white p-8 rounded-lg shadow-md">
+
+            <h1 class="text-3xl font-bold text-center mb-8">
+                Verify Order
+            </h1>
+
+
+            <label class="block font-semibold mb-2">
+                Enter QR Token
+            </label>
+
+            <input
+                type="text"
+                id="qrToken"
+                placeholder="Enter QR token"
+                class="w-full border p-3 rounded-lg mb-4"
+            >
+
+
+            <button
+                onclick="verifyOrder()"
+                class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700">
+
+                Verify Order
+
+            </button>
+
+
+            <!-- Result -->
+
+            <div id="result" class="mt-6"></div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        async function verifyOrder() {
+
+            const qrToken =
+                document.getElementById("qrToken").value.trim();
+
+            const result =
+                document.getElementById("result");
+
+
+            if (qrToken === "") {
+
+                alert("Please enter QR token.");
+
+                return;
+            }
+
+
+            result.innerHTML = `
+                <p class="text-gray-600 text-center">
+                    Checking order...
+                </p>
+            `;
+
+
+            try {
+
+                const response = await fetch(
+                    `http://localhost:5000/api/orders/qr/${qrToken}`
+                );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    result.innerHTML = `
+                        <div class="bg-red-100 text-red-700 p-5 rounded-lg">
+                            <p class="font-bold">
+                                Order not found
+                            </p>
+
+                            <p class="mt-2">
+                                ${data.message || "Invalid QR token."}
+                            </p>
+                        </div>
+                    `;
+
+                    return;
+                }
+
+
+                result.innerHTML = `
+
+                    <div class="bg-green-100 p-5 rounded-lg">
+
+                        <h2 class="text-xl font-bold mb-4">
+                            Order Verified ✓
+                        </h2>
+
+                        <p class="mb-2">
+                            Order ID:
+                            <strong>#${data.id}</strong>
+                        </p>
+
+                        <p class="mb-2">
+                            User ID:
+                            <strong>${data.user_id}</strong>
+                        </p>
+
+                        <p class="mb-2">
+                            Total:
+                            <strong>₹${data.total_amount}</strong>
+                        </p>
+
+                        <p class="mb-2">
+                            Pickup Date:
+                            <strong>${data.pickup_date}</strong>
+                        </p>
+
+                        <p class="mb-2">
+                            Pickup Time:
+                            <strong>${data.pickup_time}</strong>
+                        </p>
+
+                        <p class="mb-2">
+                            Counter:
+                            <strong>${data.counter}</strong>
+                        </p>
+
+                        <p class="mb-5">
+                            Status:
+                            <strong>${data.status}</strong>
+                        </p>
+
+
+                        <button
+                            onclick="collectOrder(${data.id})"
+                            class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700">
+
+                            Mark as Collected
+
+                        </button>
+
+                    </div>
+
+                `;
+
+            } catch (error) {
+
+                console.error(error);
+
+                result.innerHTML = `
+                    <div class="bg-red-100 text-red-700 p-5 rounded-lg">
+                        Cannot connect to server.
+                    </div>
+                `;
+
+            }
+
+        }
+
+
+        async function collectOrder(orderId) {
+
+            try {
+
+                const response = await fetch(
+                    `http://localhost:5000/api/orders/${orderId}/status`,
+                    {
+                        method: "PUT",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            status: "COLLECTED"
+                        })
+                    }
+                );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    alert(
+                        data.message ||
+                        "Failed to collect order."
+                    );
+
+                    return;
+                }
+
+
+                alert("Order marked as COLLECTED.");
+
+
+                document.getElementById("result").innerHTML = `
+
+                    <div class="bg-blue-100 text-blue-800 p-5 rounded-lg text-center">
+
+                        <h2 class="text-xl font-bold">
+                            Order Collected ✓
+                        </h2>
+
+                        <p class="mt-2">
+                            Order #${orderId}
+                        </p>
+
+                    </div>
+
+                `;
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert("Cannot connect to server.");
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Food Menu - Smart Canteen</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+
+            <a href="index.html" class="text-2xl font-bold">
+                Smart Canteen
+            </a>
+
+            <div class="flex gap-5">
+                <a href="index.html" class="text-gray-700">
+                    Home
+                </a>
+
+                <a href="menu.html" class="text-blue-600 font-semibold">
+                    Menu
+                </a>
+                
+                <a href="cart.html" class="text-gray-700">
+                    Cart
+                </a>
+
+                <a href="my-orders.html" class="text-gray-700">
+                    My Orders
+                </a>
+                
+                  <span id="authLink"></span>
+
+            </div>
+
+
+        </div>
+    </nav>
+
+
+    <!-- Page Heading -->
+    <section class="text-center py-10">
+
+        <h1 class="text-3xl font-bold">
+            Today's Menu
+        </h1>
+
+        <p class="text-gray-600 mt-2">
+            Choose your food and add it to your cart.
+        </p>
+
+    </section>
+
+
+    <!-- Food Items -->
+    <div id="foodContainer"
+        class="max-w-6xl mx-auto px-6 pb-16 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    </div>
+
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white text-center py-5">
+
+        <p>
+            © 2026 Smart Canteen Management System
+        </p>
+
+    </footer>
+
+
+    <!-- Existing menu.js -->
+    <script src="menu.js"></script>
+
+
+    <script>
+
+        async function loadFoodItems() {
+
+            const container =
+                document.getElementById("foodContainer");
+
+            try {
+
+                const response = await fetch(
+                    "http://localhost:5000/api/food"
+                );
+
+                const foods = await response.json();
+
+                container.innerHTML = "";
+
+                foods.forEach(food => {
+
+                    const card =
+                        document.createElement("div");
+
+                    card.className =
+                        "bg-white p-4 rounded-lg shadow";
+
+
+                    card.innerHTML = `
+
+                        <h3 class="text-xl font-bold">
+                            ${food.name}
+                        </h3>
+
+                        <p class="text-lg mt-2">
+                            ₹${food.price}
+                        </p>
+
+                        <p class="mt-2 ${
+                            food.available
+                                ? "text-green-600"
+                                : "text-red-600"
+                        }">
+                            ${
+                                food.available
+                                    ? "Available"
+                                    : "Unavailable"
+                            }
+                        </p>
+
+                        <button
+                            ${
+                                food.available
+                                    ? ""
+                                    : "disabled"
+                            }
+
+                            onclick='addToCart(
+    ${food.id},
+    ${JSON.stringify(food.name)},
+    ${food.price}
+)'
+
+                            class="${
+                                food.available
+                                    ? "bg-blue-500 hover:bg-blue-600"
+                                    : "bg-gray-400 cursor-not-allowed"
+                            } text-white px-4 py-2 rounded mt-3"
+                        >
+
+                            ${
+                                food.available
+                                    ? "Add to Cart"
+                                    : "Unavailable"
+                            }
+
+                        </button>
+
+                    `;
+
+                    container.appendChild(card);
+
+                });
+
+            } catch (error) {
+
+                console.error(
+                    "Error loading food:",
+                    error
+                );
+
+                container.innerHTML = `
+                    <p class="text-red-600 col-span-full text-center">
+                        Failed to load food items.
+                    </p>
+                `;
+
+            }
+
+        }
+
+
+        loadFoodItems();
+
+        function logout() {
+
+    localStorage.removeItem("student");
+    localStorage.removeItem("user_id");
+
+    window.location.href = "login.html";
+}
+
+const student = localStorage.getItem("student");
+
+const authLink = document.getElementById("authLink");
+
+if (student) {
+
+    authLink.innerHTML = `
+        <button
+            onclick="logout()"
+            class="text-red-600 font-semibold">
+            Logout
+        </button>
+    `;
+
+} else {
+
+    authLink.innerHTML = `
+        <a href="login.html"
+           class="text-gray-700">
+            Login
+        </a>
+    `;
+}
+
+    </script>
+
+
+</body>
+
+</html>

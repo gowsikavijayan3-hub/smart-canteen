@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Staff Management - Smart Canteen</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+
+<body class="bg-gray-100">
+
+
+    <!-- ================= NAVBAR ================= -->
+
+    <nav class="bg-white shadow-md">
+
+        <div
+            class="
+            max-w-6xl
+            mx-auto
+            px-6
+            py-4
+            flex
+            justify-between
+            items-center">
+
+            <div>
+
+                <h1
+                    class="
+                    text-2xl
+                    font-bold
+                    text-gray-800">
+
+                    Smart Canteen
+
+                </h1>
+
+                <p
+                    class="
+                    text-sm
+                    text-gray-500">
+
+                    Staff Management
+
+                </p>
+
+            </div>
+
+
+            <button
+                onclick="goBack()"
+                class="
+                bg-gray-700
+                hover:bg-gray-800
+                text-white
+                px-4
+                py-2
+                rounded-lg">
+
+                ← Dashboard
+
+            </button>
+
+        </div>
+
+    </nav>
+
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main
+        class="
+        max-w-6xl
+        mx-auto
+        px-6
+        py-10">
+
+
+        <!-- PAGE TITLE -->
+
+        <div class="mb-8">
+
+            <h1
+                class="
+                text-3xl
+                font-bold
+                text-gray-800">
+
+                👥 Staff Management
+
+            </h1>
+
+
+            <p
+                class="
+                text-gray-500
+                mt-1">
+
+                Create and manage canteen staff accounts.
+
+            </p>
+
+        </div>
+
+
+
+        <!-- ================= ADD STAFF ================= -->
+
+        <div
+            class="
+            bg-white
+            rounded-xl
+            shadow-sm
+            p-6
+            mb-8">
+
+
+            <div
+                class="
+                flex
+                justify-between
+                items-center
+                mb-6">
+
+
+                <div>
+
+                    <h2
+                        class="
+                        text-xl
+                        font-bold
+                        text-gray-800">
+
+                        Add New Staff
+
+                    </h2>
+
+                    <p
+                        class="
+                        text-sm
+                        text-gray-500
+                        mt-1">
+
+                        Create login credentials for a staff member.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <div
+                class="
+                grid
+                grid-cols-1
+                md:grid-cols-2
+                gap-5">
+
+
+                <!-- Name -->
+
+                <div>
+
+                    <label
+                        class="
+                        block
+                        text-sm
+                        font-semibold
+                        text-gray-700
+                        mb-2">
+
+                        Staff Name
+
+                    </label>
+
+
+                    <input
+                        type="text"
+                        id="staffName"
+                        placeholder="Enter staff name"
+                        class="
+                        w-full
+                        border
+                        border-gray-300
+                        rounded-lg
+                        px-4
+                        py-3
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-purple-500">
+
+                </div>
+
+
+
+                <!-- Staff ID -->
+
+                <div>
+
+                    <label
+                        class="
+                        block
+                        text-sm
+                        font-semibold
+                        text-gray-700
+                        mb-2">
+
+                        Staff ID
+
+                    </label>
+
+
+                    <input
+                        type="text"
+                        id="staffId"
+                        placeholder="Example: STF001"
+                        class="
+                        w-full
+                        border
+                        border-gray-300
+                        rounded-lg
+                        px-4
+                        py-3
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-purple-500">
+
+                </div>
+
+
+
+                <!-- Password -->
+
+                <div>
+
+                    <label
+                        class="
+                        block
+                        text-sm
+                        font-semibold
+                        text-gray-700
+                        mb-2">
+
+                        Password
+
+                    </label>
+
+
+                    <input
+                        type="password"
+                        id="staffPassword"
+                        placeholder="Enter password"
+                        class="
+                        w-full
+                        border
+                        border-gray-300
+                        rounded-lg
+                        px-4
+                        py-3
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-purple-500">
+
+                </div>
+
+
+
+                <!-- Counter -->
+
+                <div>
+
+                    <label
+                        class="
+                        block
+                        text-sm
+                        font-semibold
+                        text-gray-700
+                        mb-2">
+
+                        Assigned Counter
+
+                    </label>
+
+
+                    <select
+                        id="staffCounter"
+                        class="
+                        w-full
+                        border
+                        border-gray-300
+                        rounded-lg
+                        px-4
+                        py-3
+                        bg-white
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-purple-500">
+
+
+                        <option value="">
+
+                            Select Counter
+
+                        </option>
+
+
+                        <option value="Counter 1">
+
+                            Counter 1
+
+                        </option>
+
+
+                        <option value="Counter 2">
+
+                            Counter 2
+
+                        </option>
+
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Add Button -->
+
+            <div class="mt-6">
+
+                <button
+                    onclick="createStaff()"
+                    class="
+                    bg-purple-600
+                    hover:bg-purple-700
+                    text-white
+                    px-6
+                    py-3
+                    rounded-lg
+                    font-semibold">
+
+                    + Create Staff Account
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ================= STAFF LIST ================= -->
+
+        <div
+            class="
+            bg-white
+            rounded-xl
+            shadow-sm
+            p-6">
+
+
+            <div
+                class="
+                flex
+                flex-col
+                md:flex-row
+                justify-between
+                md:items-center
+                gap-4
+                mb-6">
+
+
+                <div>
+
+                    <h2
+                        class="
+                        text-xl
+                        font-bold
+                        text-gray-800">
+
+                        Staff Accounts
+
+                    </h2>
+
+                    <p
+                        class="
+                        text-sm
+                        text-gray-500
+                        mt-1">
+
+                        View all staff members and their assigned counters.
+
+                    </p>
+
+                </div>
+
+
+                <button
+                    onclick="loadStaff()"
+                    class="
+                    bg-blue-600
+                    hover:bg-blue-700
+                    text-white
+                    px-5
+                    py-2
+                    rounded-lg">
+
+                    🔄 Refresh
+
+                </button>
+
+            </div>
+
+
+
+            <!-- Staff Table -->
+
+            <div class="overflow-x-auto">
+
+                <table class="w-full text-left">
+
+
+                    <thead>
+
+                        <tr
+                            class="
+                            border-b
+                            bg-gray-50">
+
+
+                            <th class="p-3">
+
+                                Staff Name
+
+                            </th>
+
+
+                            <th class="p-3">
+
+                                Staff ID
+
+                            </th>
+
+
+                            <th class="p-3">
+
+                                Counter
+
+                            </th>
+
+
+                            <th class="p-3">
+
+                                Action
+
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="staffTable">
+
+                        <tr>
+
+                            <td
+                                colspan="4"
+                                class="
+                                p-8
+                                text-center
+                                text-gray-500">
+
+                                Loading staff accounts...
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script>
+    const API = "http://localhost:5000";
+
+
+    // ==========================================
+    // CHECK ADMIN LOGIN
+    // ==========================================
+    function getAdminToken() {
+
+        const token =
+            localStorage.getItem("adminToken");
+
+        if (!token) {
+
+            alert(
+                "Admin login required. Please login again."
+            );
+
+            window.location.href =
+                "admin-login.html";
+
+            return null;
+        }
+
+        return token;
+    }
+
+
+    // ==========================================
+    // CREATE STAFF
+    // ==========================================
+    async function createStaff() {
+
+        const name =
+            document
+                .getElementById("staffName")
+                .value
+                .trim();
+
+        const staffId =
+            document
+                .getElementById("staffId")
+                .value
+                .trim();
+
+        const password =
+            document
+                .getElementById("staffPassword")
+                .value;
+
+        const counter =
+            document
+                .getElementById("staffCounter")
+                .value;
+
+
+        // Validation
+        if (!name) {
+            alert("Please enter staff name.");
+            return;
+        }
+
+        if (!staffId) {
+            alert("Please enter staff ID.");
+            return;
+        }
+
+        if (!password) {
+            alert("Please enter password.");
+            return;
+        }
+
+        if (!counter) {
+            alert("Please select a counter.");
+            return;
+        }
+
+
+        // Get admin token
+        const adminToken =
+            getAdminToken();
+
+        if (!adminToken) {
+            return;
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API}/api/auth/create-staff`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            "Authorization":
+                                "Bearer " +
+                                adminToken
+                        },
+
+                        body: JSON.stringify({
+
+                            name: name,
+
+                            staffId: staffId,
+
+                            password: password,
+
+                            counter: counter
+
+                        })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            // Token expired / invalid
+            if (response.status === 401) {
+
+                localStorage.removeItem(
+                    "adminToken"
+                );
+
+                localStorage.removeItem(
+                    "admin"
+                );
+
+                alert(
+                    "Admin session expired. Please login again."
+                );
+
+                window.location.href =
+                    "admin-login.html";
+
+                return;
+            }
+
+
+            if (!response.ok) {
+
+                alert(
+                    data.message ||
+                    "Failed to create staff account."
+                );
+
+                return;
+            }
+
+
+            alert(
+                "Staff account created successfully!"
+            );
+
+
+            // Clear form
+            document.getElementById(
+                "staffName"
+            ).value = "";
+
+            document.getElementById(
+                "staffId"
+            ).value = "";
+
+            document.getElementById(
+                "staffPassword"
+            ).value = "";
+
+            document.getElementById(
+                "staffCounter"
+            ).value = "";
+
+
+            // Reload staff list
+            loadStaff();
+
+        }
+        catch (error) {
+
+            console.error(
+                "Create staff error:",
+                error
+            );
+
+            alert(
+                "Cannot connect to backend. Make sure the backend is running."
+            );
+        }
+    }
+
+
+
+    // ==========================================
+    // LOAD STAFF
+    // ==========================================
+    async function loadStaff() {
+
+        const table =
+            document.getElementById(
+                "staffTable"
+            );
+
+
+        table.innerHTML = `
+            <tr>
+                <td
+                    colspan="4"
+                    class="
+                    p-8
+                    text-center
+                    text-gray-500">
+
+                    Loading staff accounts...
+
+                </td>
+            </tr>
+        `;
+
+
+        // Get admin token
+        const adminToken =
+            getAdminToken();
+
+        if (!adminToken) {
+            return;
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API}/api/auth/staff`,
+                    {
+                        method: "GET",
+
+                        headers: {
+                            "Authorization":
+                                "Bearer " +
+                                adminToken
+                        }
+                    }
+                );
+
+
+            // Token expired / invalid
+            if (response.status === 401) {
+
+                localStorage.removeItem(
+                    "adminToken"
+                );
+
+                localStorage.removeItem(
+                    "admin"
+                );
+
+                alert(
+                    "Admin session expired. Please login again."
+                );
+
+                window.location.href =
+                    "admin-login.html";
+
+                return;
+            }
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Staff API failed"
+                );
+            }
+
+
+            const staff =
+                await response.json();
+
+
+            displayStaff(staff);
+
+        }
+        catch (error) {
+
+            console.error(
+                "Load staff error:",
+                error
+            );
+
+
+            table.innerHTML = `
+                <tr>
+                    <td
+                        colspan="4"
+                        class="
+                        p-8
+                        text-center
+                        text-red-500">
+
+                        Unable to load staff accounts.
+
+                        <br>
+
+                        <span
+                            class="
+                            text-sm
+                            text-gray-500">
+
+                            Make sure the staff API is available.
+
+                        </span>
+
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+
+
+    // ==========================================
+    // DISPLAY STAFF
+    // ==========================================
+    function displayStaff(staff) {
+
+        const table =
+            document.getElementById(
+                "staffTable"
+            );
+
+
+        table.innerHTML = "";
+
+
+        if (!staff || staff.length === 0) {
+
+            table.innerHTML = `
+                <tr>
+                    <td
+                        colspan="4"
+                        class="
+                        p-8
+                        text-center
+                        text-gray-500">
+
+                        No staff accounts found.
+
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+
+        staff.forEach(member => {
+
+            table.innerHTML += `
+                <tr
+                    class="
+                    border-b
+                    hover:bg-gray-50">
+
+                    <td
+                        class="
+                        p-3
+                        font-semibold">
+
+                        ${escapeHtml(
+                            member.name
+                        )}
+
+                    </td>
+
+
+                    <td class="p-3">
+
+                        <span
+                            class="
+                            bg-purple-100
+                            text-purple-700
+                            px-3
+                            py-1
+                            rounded-full
+                            text-sm
+                            font-semibold">
+
+                            ${escapeHtml(
+                                member.staff_id
+                            )}
+
+                        </span>
+
+                    </td>
+
+
+                    <td class="p-3">
+
+                        ${escapeHtml(
+                            member.counter || "-"
+                        )}
+
+                    </td>
+
+
+                    <td class="p-3">
+
+                        <button
+                            onclick="
+                                removeStaff(
+                                    ${member.id},
+                                    '${escapeJs(
+                                        member.name
+                                    )}'
+                                )
+                            "
+                            class="
+                            bg-red-500
+                            hover:bg-red-600
+                            text-white
+                            px-4
+                            py-2
+                            rounded-lg">
+
+                            🗑 Remove
+
+                        </button>
+
+                    </td>
+
+                </tr>
+            `;
+        });
+    }
+
+
+
+    // ==========================================
+    // REMOVE STAFF
+    // ==========================================
+    async function removeStaff(
+        id,
+        name
+    ) {
+
+        const confirmRemove =
+            confirm(
+                `Are you sure you want to remove "${name}"?`
+            );
+
+
+        if (!confirmRemove) {
+            return;
+        }
+
+
+        // Get admin token
+        const adminToken =
+            getAdminToken();
+
+        if (!adminToken) {
+            return;
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API}/api/auth/staff/${id}`,
+                    {
+                        method: "DELETE",
+
+                        headers: {
+                            "Authorization":
+                                "Bearer " +
+                                adminToken
+                        }
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            // Token expired / invalid
+            if (response.status === 401) {
+
+                localStorage.removeItem(
+                    "adminToken"
+                );
+
+                localStorage.removeItem(
+                    "admin"
+                );
+
+                alert(
+                    "Admin session expired. Please login again."
+                );
+
+                window.location.href =
+                    "admin-login.html";
+
+                return;
+            }
+
+
+            if (!response.ok) {
+
+                alert(
+                    data.message ||
+                    "Failed to remove staff."
+                );
+
+                return;
+            }
+
+
+            alert(
+                "Staff account removed successfully!"
+            );
+
+
+            loadStaff();
+
+        }
+        catch (error) {
+
+            console.error(
+                "Remove staff error:",
+                error
+            );
+
+            alert(
+                "Cannot connect to backend."
+            );
+        }
+    }
+
+
+
+    // ==========================================
+    // BACK TO DASHBOARD
+    // ==========================================
+    function goBack() {
+
+        window.location.href =
+            "admin-dashboard.html";
+    }
+
+
+
+    // ==========================================
+    // ESCAPE HTML
+    // ==========================================
+    function escapeHtml(value) {
+
+        return String(value ?? "")
+
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+
+            .replace(
+                /</g,
+                "&lt;"
+            )
+
+            .replace(
+                />/g,
+                "&gt;"
+            )
+
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+    }
+
+
+
+    // ==========================================
+    // ESCAPE JAVASCRIPT
+    // ==========================================
+    function escapeJs(value) {
+
+        return String(value ?? "")
+
+            .replace(
+                /\\/g,
+                "\\\\"
+            )
+
+            .replace(
+                /'/g,
+                "\\'"
+            );
+    }
+
+
+
+    // ==========================================
+    // INITIAL LOAD
+    // ==========================================
+    loadStaff();
+
+</script>
+</body>
+
+</html>

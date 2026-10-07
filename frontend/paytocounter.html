@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Pay at Counter - Smart Canteen</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+
+            <a href="index.html" class="text-2xl font-bold">
+                Smart Canteen
+            </a>
+
+            <div class="flex gap-5">
+
+                <a href="menu.html" class="text-gray-700">
+                    Menu
+                </a>
+
+                <a href="cart.html" class="text-gray-700">
+                    Cart
+                </a>
+
+                <span id="authLink"></span>
+
+            </div>
+
+        </div>
+    </nav>
+
+
+    <!-- Main -->
+    <main class="max-w-xl mx-auto px-6 py-16">
+
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+
+            <!-- Heading -->
+            <h1 class="text-3xl font-bold mb-6">
+                Pay at Counter
+            </h1>
+
+
+            <!-- Payment Information -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-5 mb-6">
+
+                <h2 class="text-xl font-bold text-yellow-800 mb-3">
+                    Payment
+                </h2>
+
+                <p class="text-gray-700">
+                    Cash or UPI payment is accepted at the canteen counter.
+                </p>
+
+                <p class="text-sm text-gray-600 mt-2">
+                    Please pay when you collect your food.
+                </p>
+
+            </div>
+
+
+            <!-- Order Information -->
+            <div class="bg-gray-50 rounded-lg p-5 mb-6">
+
+                <p class="text-gray-700">
+                    Your order will be confirmed after placing the order.
+                </p>
+
+                <p class="text-gray-600 text-sm mt-2">
+                    You can show the QR code at the pickup counter
+                    when collecting your food.
+                </p>
+
+            </div>
+
+
+            <!-- Continue Button -->
+            <button
+                onclick="continueToQR()"
+                class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700">
+
+                Continue to QR Code
+
+            </button>
+
+
+            <!-- Back Button -->
+            <button
+                onclick="goBack()"
+                class="w-full mt-3 border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-100">
+
+                Back
+
+            </button>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        // ==========================================
+        // CONTINUE TO QR PAGE
+        // ==========================================
+
+        function continueToQR() {
+
+            /*
+                No online payment is performed here.
+
+                No paymentMethod
+                No paymentStatus
+                No paymentCompleted
+
+                The user simply moves to the QR page.
+            */
+
+            window.location.href = "qr.html";
+
+        }
+
+
+        // ==========================================
+        // GO BACK
+        // ==========================================
+
+        function goBack() {
+
+            window.history.back();
+
+        }
+
+
+        // ==========================================
+        // LOGIN / LOGOUT
+        // ==========================================
+
+        function logout() {
+
+            localStorage.removeItem("student");
+            localStorage.removeItem("user_id");
+
+            window.location.href = "login.html";
+
+        }
+
+
+        const student =
+            localStorage.getItem("student");
+
+
+        const authLink =
+            document.getElementById("authLink");
+
+
+        if (student) {
+
+            authLink.innerHTML = `
+
+                <button
+                    onclick="logout()"
+                    class="text-red-600 font-semibold">
+
+                    Logout
+
+                </button>
+
+            `;
+
+        } else {
+
+            authLink.innerHTML = `
+
+                <a
+                    href="login.html"
+                    class="text-gray-700">
+
+                    Login
+
+                </a>
+
+            `;
+
+        }
+
+    </script>
+
+</body>
+
+</html>

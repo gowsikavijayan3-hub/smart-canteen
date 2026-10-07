@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Place Order - Smart Canteen</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+
+            <a href="index.html" class="text-2xl font-bold">
+                Smart Canteen
+            </a>
+
+            <div class="flex gap-5">
+
+                <a href="menu.html" class="text-gray-700">
+                    Menu
+                </a>
+
+                <a href="cart.html" class="text-gray-700">
+                    Cart
+                </a>
+
+                <span id="authLink"></span>
+
+            </div>
+
+        </div>
+    </nav>
+
+
+    <!-- Main -->
+    <main class="max-w-4xl mx-auto px-6 py-10">
+
+        <h1 class="text-3xl font-bold mb-8">
+            Confirm Your Order
+        </h1>
+
+
+        <!-- Order Summary -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+
+            <h2 class="text-xl font-bold mb-5">
+                Order Summary
+            </h2>
+
+            <div id="orderItems"></div>
+
+            <div class="border-t mt-5 pt-5 flex justify-between text-xl font-bold">
+
+                <span>
+                    Total
+                </span>
+
+                <span id="orderTotal">
+                    ₹0
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- Pickup Details -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+
+            <h2 class="text-xl font-bold mb-5">
+                Select Pickup Time
+            </h2>
+
+
+            <!-- Pickup Date -->
+            <label class="block font-semibold mb-2">
+                Pickup Date
+            </label>
+
+            <input
+                type="date"
+                id="pickupDate"
+                min=""
+                class="w-full border p-3 rounded-lg mb-5"
+            >
+
+
+            <!-- Pickup Time -->
+            <label class="block font-semibold mb-2">
+                Pickup Time
+            </label>
+
+            <select
+                id="pickupTime"
+                class="w-full border p-3 rounded-lg"
+            >
+
+                <option value="">
+                    Select pickup time
+                </option>
+
+                <option value="12:30:00">
+                    12:30 PM
+                </option>
+
+                <option value="12:35:00">
+                    12:35 PM
+                </option>
+
+                <option value="12:40:00">
+                    12:40 PM
+                </option>
+
+                <option value="12:45:00">
+                    12:45 PM
+                </option>
+
+                <option value="12:50:00">
+                    12:50 PM
+                </option>
+
+                <option value="12:55:00">
+                    12:55 PM
+                </option>
+
+                <option value="13:00:00">
+                    01:00 PM
+                </option>
+
+                <option value="13:05:00">
+                    01:05 PM
+                </option>
+
+                <option value="13:10:00">
+                    01:10 PM
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- Pickup Counter -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+
+            <h2 class="text-xl font-bold mb-4">
+                Pickup Counter
+            </h2>
+
+            <p class="text-gray-600 mb-4">
+                Select your pickup counter.
+            </p>
+
+
+            <div class="grid grid-cols-2 gap-4">
+
+                <button
+                    type="button"
+                    onclick="selectCounter('Counter 1')"
+                    id="counter1"
+                    class="border p-4 rounded-lg"
+                >
+                    Counter 1
+                </button>
+
+
+                <button
+                    type="button"
+                    onclick="selectCounter('Counter 2')"
+                    id="counter2"
+                    class="border p-4 rounded-lg"
+                >
+                    Counter 2
+                </button>
+
+            </div>
+
+
+            <p class="mt-4">
+
+                Selected Counter:
+
+                <span
+                    id="selectedCounter"
+                    class="font-bold"
+                >
+                    Not selected
+                </span>
+
+            </p>
+
+        </div>
+
+
+        <!-- Pay at Counter -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+
+            <h2 class="text-xl font-bold mb-5">
+                Payment
+            </h2>
+
+
+            <div class="flex justify-between mb-4 text-lg">
+
+                <span>
+                    Total Amount
+                </span>
+
+                <span
+                    id="paymentTotal"
+                    class="font-bold"
+                >
+                    ₹0
+                </span>
+
+            </div>
+
+
+            <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-5">
+
+                <h3 class="font-bold text-yellow-800">
+                    Pay at Counter
+                </h3>
+
+                <p class="text-sm text-gray-600 mt-2">
+
+                    Pay by cash or UPI when you collect your food.
+                    No online payment is required.
+
+                </p>
+
+            </div>
+
+
+            <button
+                id="placeOrderBtn"
+                onclick="placeOrder()"
+                class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700"
+            >
+
+                Place Order
+
+            </button>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        // ==========================================
+        // LOAD CART
+        // ==========================================
+
+        let cart =
+            JSON.parse(localStorage.getItem("cart")) || [];
+
+        let selectedCounter = "";
+
+
+        // ==========================================
+        // GET TODAY'S DATE
+        // ==========================================
+
+        function getTodayString() {
+
+            const today = new Date();
+
+            const year =
+                today.getFullYear();
+
+            const month =
+                String(
+                    today.getMonth() + 1
+                ).padStart(2, "0");
+
+            const day =
+                String(
+                    today.getDate()
+                ).padStart(2, "0");
+
+            return `${year}-${month}-${day}`;
+        }
+
+
+        // ==========================================
+        // SET MINIMUM PICKUP DATE
+        // ==========================================
+
+        const pickupDateInput =
+            document.getElementById("pickupDate");
+
+        const todayString =
+            getTodayString();
+
+        pickupDateInput.min =
+            todayString;
+
+
+        // ==========================================
+        // DISPLAY ORDER SUMMARY
+        // ==========================================
+
+        function displayOrder() {
+
+            const orderItems =
+                document.getElementById("orderItems");
+
+            const orderTotal =
+                document.getElementById("orderTotal");
+
+            const paymentTotal =
+                document.getElementById("paymentTotal");
+
+
+            // Check empty cart
+            if (cart.length === 0) {
+
+                orderItems.innerHTML = `
+                    <p class="text-red-500">
+                        Your cart is empty.
+                    </p>
+                `;
+
+                return;
+            }
+
+
+            let total = 0;
+
+            orderItems.innerHTML = "";
+
+
+            cart.forEach(item => {
+
+                const itemTotal =
+                    item.price * item.quantity;
+
+                total += itemTotal;
+
+
+                orderItems.innerHTML += `
+                    <div class="flex justify-between border-b py-3">
+
+                        <span>
+                            ${item.name} × ${item.quantity}
+                        </span>
+
+                        <span>
+                            ₹${itemTotal}
+                        </span>
+
+                    </div>
+                `;
+
+            });
+
+
+            orderTotal.textContent =
+                `₹${total}`;
+
+            paymentTotal.textContent =
+                `₹${total}`;
+
+        }
+
+
+        // ==========================================
+        // SELECT COUNTER
+        // ==========================================
+
+        function selectCounter(counter) {
+
+            selectedCounter = counter;
+
+
+            document.getElementById(
+                "selectedCounter"
+            ).textContent = counter;
+
+
+            document.getElementById(
+                "counter1"
+            ).classList.remove(
+                "bg-blue-600",
+                "text-white"
+            );
+
+
+            document.getElementById(
+                "counter2"
+            ).classList.remove(
+                "bg-blue-600",
+                "text-white"
+            );
+
+
+            const selectedButton =
+                counter === "Counter 1"
+                    ? "counter1"
+                    : "counter2";
+
+
+            document.getElementById(
+                selectedButton
+            ).classList.add(
+                "bg-blue-600",
+                "text-white"
+            );
+
+        }
+
+
+        // ==========================================
+        // PLACE ORDER
+        // ==========================================
+
+        async function placeOrder() {
+
+            const pickupDate =
+                document.getElementById(
+                    "pickupDate"
+                ).value;
+
+
+            const pickupTime =
+                document.getElementById(
+                    "pickupTime"
+                ).value;
+
+
+            const userId =
+                localStorage.getItem(
+                    "user_id"
+                );
+
+
+            // Check cart
+            if (cart.length === 0) {
+
+                alert(
+                    "Your cart is empty."
+                );
+
+                return;
+            }
+
+
+            // Check login
+            if (!userId) {
+
+                alert(
+                    "Please log in before placing your order."
+                );
+
+                window.location.href =
+                    "login.html";
+
+                return;
+            }
+
+
+            // Check date
+            if (!pickupDate) {
+
+                alert(
+                    "Please select pickup date."
+                );
+
+                return;
+            }
+
+
+            // ==========================================
+            // CHECK PAST DATE
+            // ==========================================
+
+            const today =
+                getTodayString();
+
+
+            if (pickupDate < today) {
+
+                alert(
+                    "Pickup date cannot be a past date."
+                );
+
+                return;
+            }
+
+
+            // Check time
+            if (!pickupTime) {
+
+                alert(
+                    "Please select pickup time."
+                );
+
+                return;
+            }
+
+
+            // Check counter
+            if (!selectedCounter) {
+
+                alert(
+                    "Please select a counter."
+                );
+
+                return;
+            }
+
+
+            // ======================================
+            // CALCULATE TOTAL
+            // ======================================
+
+            let total = 0;
+
+
+            cart.forEach(item => {
+
+                total +=
+                    item.price *
+                    item.quantity;
+
+            });
+
+
+            // ======================================
+            // DISABLE BUTTON
+            // ======================================
+
+            const button =
+                document.getElementById(
+                    "placeOrderBtn"
+                );
+
+
+            button.disabled = true;
+
+            button.textContent =
+                "Placing Order...";
+
+
+            try {
+
+                // ==================================
+                // SEND ORDER TO BACKEND
+                // ==================================
+
+                const response =
+                    await fetch(
+                        "http://localhost:5000/api/orders",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+
+                                user_id:
+                                    Number(userId),
+
+                                total_amount:
+                                    total,
+
+                                pickup_date:
+                                    pickupDate,
+
+                                pickup_time:
+                                    pickupTime,
+
+                                counter:
+                                    selectedCounter,
+
+                                items:
+                                    cart
+
+                            })
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                // ==================================
+                // CHECK RESPONSE
+                // ==================================
+
+                if (!response.ok) {
+
+                    alert(
+                        data.message ||
+                        "Failed to create order."
+                    );
+
+                    return;
+                }
+
+
+                // ==================================
+                // CHECK QR TOKEN
+                // ==================================
+
+                if (!data.qr_token) {
+
+                    alert(
+                        "Order was created, but the QR token is missing. Please contact the canteen."
+                    );
+
+                    return;
+                }
+
+
+                // ==================================
+                // SAVE ORDER DETAILS
+                // ==================================
+
+                localStorage.setItem(
+                    "orderId",
+                    data.orderId
+                );
+
+
+                localStorage.setItem(
+                    "qr_token",
+                    data.qr_token
+                );
+
+
+                localStorage.setItem(
+                    "pickupDate",
+                    pickupDate
+                );
+
+
+                localStorage.setItem(
+                    "pickupTime",
+                    pickupTime
+                );
+
+
+                localStorage.setItem(
+                    "selectedCounter",
+                    selectedCounter
+                );
+
+
+                // ==================================
+                // CLEAR CART
+                // ==================================
+
+                localStorage.removeItem(
+                    "cart"
+                );
+
+
+                // ==================================
+                // SUCCESS MESSAGE
+                // ==================================
+
+                alert(
+                    "Order placed successfully!"
+                );
+
+
+                // ==================================
+                // GO TO QR PAGE
+                // ==================================
+
+                window.location.href =
+                    "qr.html";
+
+
+            } catch (error) {
+
+                console.error(
+                    "Place order error:",
+                    error
+                );
+
+
+                alert(
+                    "Cannot connect to server. Please try again."
+                );
+
+            } finally {
+
+                button.disabled = false;
+
+                button.textContent =
+                    "Place Order";
+
+            }
+
+        }
+
+
+        // ==========================================
+        // LOAD ORDER SUMMARY
+        // ==========================================
+
+        displayOrder();
+
+
+        // ==========================================
+        // LOGOUT
+        // ==========================================
+
+        function logout() {
+
+            localStorage.removeItem(
+                "student"
+            );
+
+            localStorage.removeItem(
+                "user_id"
+            );
+
+            window.location.href =
+                "login.html";
+
+        }
+
+
+        // ==========================================
+        // LOGIN / LOGOUT LINK
+        // ==========================================
+
+        const student =
+            localStorage.getItem(
+                "student"
+            );
+
+
+        const authLink =
+            document.getElementById(
+                "authLink"
+            );
+
+
+        if (student) {
+
+            authLink.innerHTML = `
+
+                <button
+                    onclick="logout()"
+                    class="text-red-600 font-semibold"
+                >
+                    Logout
+                </button>
+
+            `;
+
+        } else {
+
+            authLink.innerHTML = `
+
+                <a
+                    href="login.html"
+                    class="text-gray-700"
+                >
+                    Login
+                </a>
+
+            `;
+
+        }
+
+    </script>
+
+</body>
+
+</html>

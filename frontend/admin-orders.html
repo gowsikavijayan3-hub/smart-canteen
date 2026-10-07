@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Orders - Smart Canteen</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+    <nav class="bg-white shadow-md">
+        <div class="max-w-6xl mx-auto px-6 py-4">
+
+            <h1 class="text-2xl font-bold">
+                Smart Canteen - Admin
+            </h1>
+
+        </div>
+    </nav>
+
+
+    <main class="max-w-6xl mx-auto px-6 py-10">
+
+        <div class="flex justify-between items-center mb-8">
+
+    <h1 class="text-3xl font-bold">
+        Order Management
+    </h1>
+
+    <a
+        href="admin-dashboard.html"
+        class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-3 rounded-lg font-semibold">
+
+        ← Back to Add Food
+
+    </a>
+
+</div>
+
+        <div id="ordersContainer">
+            Loading orders...
+        </div>
+
+    </main>
+
+
+    <script>
+
+        async function loadOrders() {
+
+            const container =
+                document.getElementById("ordersContainer");
+
+            try {
+
+                const response = await fetch(
+                    "http://localhost:5000/api/orders"
+                );
+
+                const orders = await response.json();
+
+                container.innerHTML = "";
+
+
+                if (orders.length === 0) {
+
+                    container.innerHTML = `
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            No orders found.
+                        </div>
+                    `;
+
+                    return;
+                }
+
+
+                orders.forEach(order => {
+
+                    const card =
+                        document.createElement("div");
+
+                    card.className =
+                        "bg-white p-6 rounded-lg shadow mb-5";
+
+
+                    card.innerHTML = `
+
+                        <div class="flex justify-between">
+
+                            <div>
+
+                                <h2 class="text-xl font-bold">
+                                    Order #${order.id}
+                                </h2>
+
+                                <p class="mt-2">
+                                    User ID: ${order.user_id}
+                                </p>
+
+                                <p>
+                                    Total: ₹${order.total_amount}
+                                </p>
+
+                                <p>
+                                    Pickup:
+                                    ${order.pickup_date}
+                                    ${order.pickup_time}
+                                </p>
+
+                                <p>
+                                    Counter:
+                                    ${order.counter}
+                                </p>
+
+                                <p class="mt-2 font-bold">
+                                    Status:
+                                    ${order.status}
+                                </p>
+
+                            </div>
+
+
+                            <div class="flex flex-col gap-2">
+
+                                <button
+                                    onclick="updateStatus(${order.id}, 'PREPARING')"
+                                    class="bg-yellow-500 text-white px-4 py-2 rounded-lg">
+
+                                    Preparing
+
+                                </button>
+
+
+                                <button
+                                    onclick="updateStatus(${order.id}, 'READY')"
+                                    class="bg-green-600 text-white px-4 py-2 rounded-lg">
+
+                                    Ready
+
+                                </button>
+
+
+                                <button
+                                    onclick="updateStatus(${order.id}, 'COLLECTED')"
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-lg">
+
+                                    Collected
+
+                                </button>
+
+                            </div>
+
+                        </div>
+                    `;
+
+
+                    container.appendChild(card);
+
+                });
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                container.innerHTML = `
+                    <div class="bg-red-100 text-red-700 p-5 rounded-lg">
+                        Cannot connect to server.
+                    </div>
+                `;
+
+            }
+
+        }
+
+
+        async function updateStatus(orderId, status) {
+
+            try {
+
+                const response = await fetch(
+                    `http://localhost:5000/api/orders/${orderId}/status`,
+                    {
+                        method: "PUT",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            status: status
+                        })
+                    }
+                );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    alert(
+                        data.message ||
+                        "Failed to update status."
+                    );
+
+                    return;
+                }
+
+
+                alert(
+                    `Order #${orderId} changed to ${status}`
+                );
+
+
+                loadOrders();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert("Cannot connect to server.");
+
+            }
+
+        }
+
+
+        loadOrders();
+
+    </script>
+
+</body>
+
+</html>
