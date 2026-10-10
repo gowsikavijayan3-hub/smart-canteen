@@ -301,225 +301,88 @@ router.post("/", (req, res) => {
             // START DATABASE TRANSACTION
             // ==========================================
 
-            db.beginTransaction(
-                (transactionErr) => {
+          db.getConnection((connectionErr, connection) => {
+    if (connectionErr) {
+        console.error("Get connection error:", connectionErr.message);
+        return res.status(500).json({
+            message: "Failed to connect to database"
+        });
+    }
 
-                    if (transactionErr) {
+    connection.beginTransaction((transactionErr) => {
+        if (transactionErr) {
+            connection.release();
+            console.error("Transaction start error:", transactionErr.message);
+            return res.status(500).json({
+                message: "Failed to start order transaction"
+            });
+        }
 
-                        console.log(
-                            "Transaction start error:",
-                            transactionErr.message
-                        );
+        const orderSql = `
+            INSERT INTO orders
+            (user_id, total_amount, pickup_date, pickup_time, counter, status, qr_token)
+            VALUES (?, ?, ?, ?, ?, 'PLACED', ?)
+        `;
 
-                        return res.status(500).json({
-                            message:
-                                "Failed to start order transaction"
+        connection.query(
+            orderSql,
+            [user_id, calculatedTotal, pickup_date, pickup_time, counter, qrToken],
+            (orderErr, result) => {
+                if (orderErr) {
+                    return connection.rollback(() => {
+                        connection.release();
+                        console.error("Create order error:", orderErr.message);
+                        res.status(500).json({
+                            message: "Failed to create order"
                         });
+                    });
+                }
 
+                const orderId = result.insertId;
+                const itemSql = `
+                    INSERT INTO order_items (order_id, food_id, quantity, price)
+                    VALUES ?
+                `;
+
+                const values = orderItems.map(item => [
+                    orderId, item.food_id, item.quantity, item.price
+                ]);
+
+                connection.query(itemSql, [values], (itemErr) => {
+                    if (itemErr) {
+                        return connection.rollback(() => {
+                            connection.release();
+                            console.error("Order item error:", itemErr.message);
+                            res.status(500).json({
+                                message: "Failed to save order items. Order creation rolled back."
+                            });
+                        });
                     }
 
-
-                    // ==========================================
-                    // INSERT ORDER
-                    // ==========================================
-
-                    const orderSql = `
-                        INSERT INTO orders
-                        (
-                            user_id,
-                            total_amount,
-                            pickup_date,
-                            pickup_time,
-                            counter,
-                            status,
-                            qr_token
-                        )
-                        VALUES (?, ?, ?, ?, ?, 'PLACED', ?)
-                    `;
-
-
-                    db.query(
-                        orderSql,
-                        [
-                            user_id,
-                            calculatedTotal,
-                            pickup_date,
-                            pickup_time,
-                            counter,
-                            qrToken
-                        ],
-                        (orderErr, result) => {
-
-                            if (orderErr) {
-
-                                console.log(
-                                    "Create order error:",
-                                    orderErr.message
-                                );
-
-
-                                return db.rollback(
-                                    () => {
-
-                                        res.status(500).json({
-                                            message:
-                                                "Failed to create order"
-                                        });
-
-                                    }
-                                );
-
-                            }
-
-
-                            const orderId =
-                                result.insertId;
-
-
-                            // ==========================================
-                            // INSERT ALL ORDER ITEMS
-                            // ==========================================
-
-                            let completed = 0;
-                            let failed = false;
-
-
-                            orderItems.forEach(item => {
-
-                                const itemSql = `
-                                    INSERT INTO order_items
-                                    (
-                                        order_id,
-                                        food_id,
-                                        quantity,
-                                        price
-                                    )
-                                    VALUES (?, ?, ?, ?)
-                                `;
-
-
-                                db.query(
-                                    itemSql,
-                                    [
-                                        orderId,
-                                        item.food_id,
-                                        item.quantity,
-                                        item.price
-                                    ],
-                                    (itemErr) => {
-
-                                        if (failed) {
-                                            return;
-                                        }
-
-
-                                        // ==================================
-                                        // ITEM INSERT FAILED
-                                        // ==================================
-
-                                        if (itemErr) {
-
-                                            failed = true;
-
-
-                                            console.log(
-                                                "Order item error:",
-                                                itemErr.message
-                                            );
-
-
-                                            return db.rollback(
-                                                () => {
-
-                                                    res.status(500).json({
-                                                        message:
-                                                            "Failed to save order items. Order creation rolled back."
-                                                    });
-
-                                                }
-                                            );
-
-                                        }
-
-
-                                        completed++;
-
-
-                                        // ==================================
-                                        // ALL ITEMS INSERTED
-                                        // ==================================
-
-                                        if (
-                                            completed ===
-                                            orderItems.length
-                                        ) {
-
-
-                                            // ==================================
-                                            // COMMIT TRANSACTION
-                                            // ==================================
-
-                                            db.commit(
-                                                (commitErr) => {
-
-                                                    if (commitErr) {
-
-                                                        console.log(
-                                                            "Transaction commit error:",
-                                                            commitErr.message
-                                                        );
-
-
-                                                        return db.rollback(
-                                                            () => {
-
-                                                                res.status(500).json({
-                                                                    message:
-                                                                        "Failed to complete order transaction"
-                                                                });
-
-                                                            }
-                                                        );
-
-                                                    }
-
-
-                                                    // ==================================
-                                                    // SUCCESS
-                                                    // ==================================
-
-                                                    res.json({
-
-                                                        message:
-                                                            "Order created successfully",
-
-                                                        orderId:
-                                                            orderId,
-
-                                                        qr_token:
-                                                            qrToken,
-
-                                                        total_amount:
-                                                            calculatedTotal
-
-                                                    });
-
-                                                }
-                                            );
-
-                                        }
-
-                                    }
-                                );
-
+                    connection.commit((commitErr) => {
+                        if (commitErr) {
+                            return connection.rollback(() => {
+                                connection.release();
+                                console.error("Transaction commit error:", commitErr.message);
+                                res.status(500).json({
+                                    message: "Failed to complete order transaction"
+                                });
                             });
-
                         }
-                    );
 
-                }
-            );
-
+                        connection.release();
+                        return res.json({
+                            message: "Order created successfully",
+                            orderId,
+                            qr_token: qrToken,
+                            total_amount: calculatedTotal
+                        });
+                    });
+                });
+            }
+        );
+    });
+});
         }
     );
 
